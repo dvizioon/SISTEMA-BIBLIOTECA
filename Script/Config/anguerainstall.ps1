@@ -126,22 +126,18 @@ $buttonStartConfiguration.Add_Click({
                 $logMessageArquivo = "Arquivo '$($arquivo.Name)' copiado para '$caminhoDestino'."
                 $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessageArquivo))
             }
-
-            # Define o nome da variável de ambiente
-            $variavelAmbiente = "PHP_VERSION"
-
-            if (-not ([System.Environment]::GetEnvironmentVariable($variavelAmbiente, [System.EnvironmentVariableTarget]::User))) {
-                $valorVariavel = "$caminhoPasta\$valor_destino"
-                [System.Environment]::SetEnvironmentVariable($variavelAmbiente, $valorVariavel, [System.EnvironmentVariableTarget]::User)
+            
+            # Adiciona o caminho diretamente ao PATH se não estiver presente
+            if (-not ([System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::User) -like "*$caminhoPasta\$valor_destino*")) {
                 $pathAtual = [System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::User)
-                $pathAtual += ";%PHP_VERSION%"
+                $pathAtual += ";$caminhoPasta\$valor_destino"
                 [System.Environment]::SetEnvironmentVariable("PATH", $pathAtual, [System.EnvironmentVariableTarget]::User)
-                
             }
             else {
-                $logMessage = "PHP_VERSION Ja Encontrada ..."
+                $logMessage = "O caminho já está no PATH."
                 $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessage))
             }
+
             $buttonFechar.Visible = $true
             $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", "Sucesso Finalizado Configuracao..."))
         }
