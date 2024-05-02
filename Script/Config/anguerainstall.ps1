@@ -163,6 +163,75 @@ $tab2 = New-Object System.Windows.Forms.TabPage
 $tab2.Text = "Config INI"
 $tabControl.Controls.Add($tab2)
 
+# Criar ComboBox
+$comboBox = New-Object System.Windows.Forms.ComboBox
+$comboBox.Location = New-Object System.Drawing.Point(20, 60)
+$comboBox.Size = New-Object System.Drawing.Size(170, 50)
+$comboBox.Font = New-Object System.Drawing.Font("Arial", 16, [System.Drawing.FontStyle]::Bold) 
+
+$comboBox.Items.Add("AlternateBlue")
+$comboBox.Items.Add("Bootstrap")
+$comboBox.Items.Add("Default")
+$comboBox.Items.Add("dynamic_myAdmin")
+$comboBox.Items.Add("Dynamic")
+$comboBox.Items.Add("MiamiNights")
+$comboBox.Items.Add("Modern")
+$comboBox.Items.Add("pitchGray")
+$comboBox.Items.Add("PlasticDream")
+$comboBox.Items.Add("PlasticNightmare")
+$comboBox.Items.Add("Retro")
+$comboBox.Items.Add("Shadow")
+$comboBox.Items.Add("Sheep")
+$comboBox.Items.Add("simpleGray")
+$comboBox.Items.Add("SoftieBlue")
+$comboBox.Items.Add("Ugur3d")
+
+
+$caminhoArquivo_iniSelect = "config.ini"
+if (Test-Path $caminhoArquivo_iniSelect -PathType Leaf) {
+    $conteudoArquivo = Get-Content -Path $caminhoArquivo_iniSelect
+
+    # Procura pela linha que contém o tema
+    foreach ($linha in $conteudoArquivo) {
+        if ($linha -match '^Theme\s*=\s*(.*)') {
+            $temaAtual = $matches[1].Trim()
+            $comboBox.SelectedItem = $temaAtual 
+            break 
+        }
+    }
+}
+else {
+    Write-Host "Arquivo não encontrado: $caminhoArquivo_iniSelect"
+    $temaAtual = "Retro"
+}
+
+
+
+# Define o evento de seleção do ComboBox
+$comboBox.Add_SelectedIndexChanged({
+        $temaSelecionado = $comboBox.SelectedItem
+        $caminhoArquivo = "config.ini"
+        $conteudoArquivo = CarregarOuCriarArquivo -caminhoCompleto $caminhoArquivo
+        $conteudoArquivoAtualizado = $conteudoArquivo -replace "Theme = .+", "Theme = $temaSelecionado"
+        $conteudoArquivoAtualizado | Out-File -FilePath $caminhoArquivo -Force
+        $textBoxConfig.Clear()
+        $conteudoArquivoFormatado = @"
+[Panel]
+Theme = $temaSelecionado
+Lang  = en
+Host  = localhost
+Port  = 8000
+Pass  = admin
+Dir   = .
+"@
+        # Cria o arquivo com o conteúdo padrão
+        $conteudoArquivoFormatado
+       
+        $textBoxConfig.AppendText($conteudoArquivoFormatado)
+    })
+$tab2.Controls.Add($comboBox)
+
+
 # Define a função para carregar ou criar um arquivo de configuração
 function CarregarOuCriarArquivo {
     param(
@@ -185,12 +254,12 @@ function CarregarOuCriarArquivo {
         # Se o arquivo não existir, cria o conteúdo padrão
         $conteudoArquivoFormatado = @"
 [Panel]
-Theme = "Retro"
-Lang  = "en"
-Host  = "localhost"
-Port  = "8000"
-Pass  = "admin"
-Dir   = "."
+Theme = Retro
+Lang  = en
+Host  = localhost
+Port  = 8000
+Pass  = admin
+Dir   = .
 "@
         # Cria o arquivo com o conteúdo padrão
         $conteudoArquivoFormatado | Out-File -FilePath $caminhoCompleto
@@ -216,14 +285,14 @@ function ReseteConfiguracoes {
         [string]$caminhoCompleto
 
     )
-$conteudoArquivoFormatado = @"
+    $conteudoArquivoFormatado = @"
 [Panel]
-Theme = "Retro"
-Lang  = "en"
-Host  = "localhost"
-Port  = "8000"
-Pass  = "admin"
-Dir   = "."
+Theme = Retro
+Lang  = en
+Host  = localhost
+Port  = 8000
+Pass  = admin
+Dir   = .
 "@
     $textBoxConfig.Text = $conteudoArquivoFormatado 
     [System.Windows.Forms.MessageBox]::Show("Arquivo Resetado com Sucesso...")
@@ -273,6 +342,148 @@ $buttonReset.Add_Click({
 $buttonSave.Add_Click({
         SalvarConfiguracoes -caminhoCompleto $caminhoArquivo -novoConteudo $textBoxConfig.Text
     })
+
+function LerVariavelDoArquivoIni {
+    param (
+        [string]$caminhoCompleto,
+        [string]$variavelDesejada
+    )
+
+    # Define uma variável para armazenar o valor da variável desejada
+    $valorVariavel = ""
+
+    # Verifica se o arquivo existe
+    if (Test-Path $caminhoCompleto -PathType Leaf) {
+        # Lê o conteúdo do arquivo
+        $linhas = Get-Content -Path $caminhoCompleto
+
+        # Loop pelas linhas do arquivo
+        foreach ($linha in $linhas) {
+            # Verifica se a linha contém a variável desejada
+            if ($linha -match "^\s*$variavelDesejada\s*=\s*(.*)\s*$") {
+                $valorVariavel = $matches[1]
+                break  # Se encontrarmos a variável desejada, podemos parar de percorrer o arquivo
+            }
+        }
+    }
+    else {
+        Write-Host "O arquivo não foi encontrado no caminho especificado."
+    }
+
+    return $valorVariavel
+}
+
+# Caminho para o arquivo INI
+$caminhoArquivoIni = "config.ini"
+
+$_Host = LerVariavelDoArquivoIni -caminhoCompleto $caminhoArquivoIni -variavelDesejada "Host"
+$_Port = LerVariavelDoArquivoIni -caminhoCompleto $caminhoArquivoIni -variavelDesejada "Port"
+
+
+# Criando a aba "Test Servidor"
+$tab3 = New-Object System.Windows.Forms.TabPage
+$tab3.Text = "Teste AngueraBookAdmin"
+$tabControl.Controls.Add($tab3)
+
+# Adicionando os elementos à aba "Test Servidor"
+# Input 1
+$hots_input = New-Object System.Windows.Forms.TextBox
+$hots_input.Location = New-Object System.Drawing.Point(20, 20)
+$hots_input.Enabled = $false
+$hots_input.Text = $_Host
+$hots_input.Size = New-Object System.Drawing.Size(200, 20)
+$tab3.Controls.Add($hots_input)
+
+# Input 2
+$port_input = New-Object System.Windows.Forms.TextBox
+$port_input.Location = New-Object System.Drawing.Point(20, 50)
+$port_input.Enabled = $false
+$port_input.Text = $_Port
+$port_input.Size = New-Object System.Drawing.Size(200, 20)
+$tab3.Controls.Add($port_input)
+
+# Botão
+$button_iniciar = New-Object System.Windows.Forms.Button
+$button_iniciar.Location = New-Object System.Drawing.Point(20, 80)
+$button_iniciar.Size = New-Object System.Drawing.Size(150, 23)
+$button_iniciar.Text = "Iniciar PHP Server"
+$tab3.Controls.Add($button_iniciar)
+
+$button_stop = New-Object System.Windows.Forms.Button
+$button_stop.Location = New-Object System.Drawing.Point(200, 80)
+$button_stop.Size = New-Object System.Drawing.Size(150, 23)
+$button_stop.Text = "Para Server"
+$tab3.Controls.Add($button_stop)
+
+
+# TextArea
+$textBox = New-Object System.Windows.Forms.TextBox
+$textBox.Multiline = $true
+$textBox.ScrollBars = "Vertical"
+$textBox.Location = New-Object System.Drawing.Point(20, 110)
+$textBox.Size = New-Object System.Drawing.Size(350, 150)
+$tab3.Controls.Add($textBox)
+
+# Evento de clique do botão
+$button_iniciar.Add_Click({
+        # Define o comando a ser executado
+        $comando = "cd ./Packages && cd phpLiteAdmin && php_5.exe -S $($_Host):$($_Port)"
+
+        # Cria um processo para executar o comando e redireciona a saída padrão
+        $processo = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $comando" -NoNewWindow -PassThru
+
+        # Se o processo foi iniciado com sucesso
+        if ($processo) {
+            $textBox.AppendText("O PHP Server foi iniciado com sucesso." + [Environment]::NewLine)
+            $textBox.AppendText("Iniciando Teste ..." + [Environment]::NewLine)
+            # URL a ser aberta
+
+            # Função para ler a saída do processo e exibir na caixa de texto
+            $leituraProcesso = {
+                param($processo, $textBox)
+
+                while (!$processo.HasExited) {
+                    $linha = $processo.StandardOutput.ReadLine()
+                    if ($linha -ne $null) {
+                        $textBox.BeginInvoke([Action[string]] { param($line) $textBox.AppendText($line + [Environment]::NewLine) }, $linha) | Out-Null
+                    }
+                    Start-Sleep -Milliseconds 100  # Aguarda um curto período para evitar bloqueios
+                }
+            }
+
+            # Inicia a leitura da saída do processo em segundo plano
+            Start-Job -ScriptBlock $leituraProcesso -ArgumentList $processo, $textBox
+
+            Start-Sleep -Seconds 3
+            $url = "http://$($_Host):$($_Port)/angueraAdmin.php"
+            Start-Process $url
+        }
+        else {
+            # Se ocorreu um erro ao iniciar o processo
+            $textBox.AppendText("Erro ao iniciar o PHP Server." + [Environment]::NewLine)
+        }
+    })
+
+
+# Evento de clique do botão de parar
+$button_stop.Add_Click({
+        # Verifica se o processo foi criado
+        if ($processo) {
+            # Encerra o processo
+            $processo.Kill()
+        
+            # Adiciona uma mensagem na caixa de texto
+            $textBox.AppendText("Processo interrompido." + [Environment]::NewLine)
+        }
+        else {
+            # Se o processo não foi criado, exibe uma mensagem de erro
+            $textBox.AppendText("Nenhum processo em execução para interromper." + [Environment]::NewLine)
+        }
+    })
+
+
+
+
 
 $form.ShowDialog() | Out-Null
 
