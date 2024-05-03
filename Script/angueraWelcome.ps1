@@ -1,18 +1,20 @@
 
+
+# Importa o namespace do YamlDotNet
+using namespace YamlDotNet.RepresentationModel
+
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-$diretorioDll = $PWD.Path
-Write-Host $diretorioDll
+# $diretorioDll = $PWD.Path
+# Write-Host $diretorioDll
 
-# [Reflection.Assembly]::LoadFile("C:\Users\Daniel\Desktop\BIBLIOTECA\SISTEMA BIBLIOTECA\Packages\.NET\System.Data.SQLite.dll")
-# $databasePath = "./Packages/phpLiteAdmin/dados.sqlite"
-# $conexao = New-Object System.Data.SQLite.SQLiteConnection
-# $conexao.ConnectionString = "Data Source=$databasePath"
-# $conexao.Open()
-# $conexao.Close()
-
-
+# # [Reflection.Assembly]::LoadFile("$diretorioDll\Packages\.NET\System.Data.SQLite.dll")
+# # $databasePath = "./Packages/phpLiteAdmin/dados.sqlite"
+# # $conexao = New-Object System.Data.SQLite.SQLiteConnection
+# # $conexao.ConnectionString = "Data Source=$databasePath"
+# # $conexao.Open()
+# # $conexao.Close()
 
 
 $form = New-Object System.Windows.Forms.Form
@@ -42,8 +44,6 @@ $labelCriador.Size = New-Object System.Drawing.Size(400, 50)
 $labelCriador.TextAlign = "MiddleCenter"
 $labelCriador.Text = "Suporte:danielmartinsjob@gmail.com"
 $labelCriador.Font = New-Object System.Drawing.Font("Arial", 10, [System.Drawing.FontStyle]::Bold)  
-
-
 
 $comboBox = New-Object System.Windows.Forms.ComboBox
 $comboBox.Location = New-Object System.Drawing.Point(20, 350)
@@ -92,6 +92,9 @@ function abriJanela {
     }
     elseif ($option -eq "Remover") {
         Start-Process powershell.exe -NoNewWindow "./Script/Config/angueraremove.ps1"
+    }
+    elseif ($option -eq "Ferramentas") {
+        Start-Process powershell.exe -NoNewWindow "./Script/Config/angueratools.ps1"
     }
     
 }

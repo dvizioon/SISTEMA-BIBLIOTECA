@@ -206,7 +206,7 @@ $buttonStartConfiguration.Add_Click({
 
             $tabControl.TabPages.Remove($tab2)
             $tabControl.TabPages.Remove($tab3)
-
+            CriarLogs -caminhoLog "./Logs/Log_INS.log" -logs ""
             CriarLogs -caminhoLog "./Logs/Log_INS.log" -logs $textAreaLogs.Text
 
             

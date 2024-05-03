@@ -1,0 +1,3 @@
+caminhos:
+  - \Packages\.NET\System.Data.SQLite.dll
+  - \Packages\.NET\SQLite.Interop.dll
