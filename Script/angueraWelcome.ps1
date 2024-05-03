@@ -51,9 +51,11 @@ function abriJanela {
 
     if ($option -eq "Instalar") {
         Start-Process powershell.exe -NoNewWindow "./Script/Config/anguerainstall.ps1"
+        $form.Close()
     }
     elseif ($option -eq "Remover") {
         Start-Process powershell.exe -NoNewWindow "./Script/Config/angueraremove.ps1"
+        $form.Close()
     }
     
 }
