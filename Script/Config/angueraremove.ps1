@@ -45,7 +45,8 @@ function RemoverAll {
                 [System.Environment]::SetEnvironmentVariable("PATH", $novoPath, [System.EnvironmentVariableTarget]::User)
                 Write-Host "O caminho foi removido com sucesso do PATH."
                 $textBox_logs.AppendText("O caminho foi removido com sucesso do PATH $([Environment]::NewLine)")
-            } else {
+            }
+            else {
                 Write-Host "O caminho não está presente no PATH."
                 $textBox_logs.AppendText("O caminho não está presente no PATH. $([Environment]::NewLine)")
             }
@@ -70,6 +71,8 @@ function RemoverAll {
 
                     # Remover arquivo
                     Remove-Item -Path $item.FullName -Force -ErrorAction Stop
+
+                    $form.Close()
                 }
                 elseif ($item -is [System.IO.DirectoryInfo]) {
                     $textBox_logs.ForeColor = "Green"
