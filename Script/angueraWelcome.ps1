@@ -2,6 +2,18 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+$diretorioDll = $PWD.Path
+Write-Host $diretorioDll
+
+# [Reflection.Assembly]::LoadFile("C:\Users\Daniel\Desktop\BIBLIOTECA\SISTEMA BIBLIOTECA\Packages\.NET\System.Data.SQLite.dll")
+# $databasePath = "./Packages/phpLiteAdmin/dados.sqlite"
+# $conexao = New-Object System.Data.SQLite.SQLiteConnection
+# $conexao.ConnectionString = "Data Source=$databasePath"
+# $conexao.Open()
+# $conexao.Close()
+
+
+
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "AngueraBook"

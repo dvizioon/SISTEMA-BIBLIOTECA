@@ -89,7 +89,40 @@ $tab1.Controls.Add($inputPhpVersion)
 
 
 function FecharFormulario {
-    $form.Close()
+    $pid_Painel = CarregarLogs -caminhoLog "./Keys/Pid_PS1.txt"
+    # Write-Host $pid_Painel
+
+    $processoPID = $pid_Painel
+    if ($processoPID -ne "") {
+        try {
+            # Obtém o processo com o PID especificado
+            $processoParaEncerrar = Get-Process -Id $processoPID -ErrorAction Stop
+
+            # Verifica se o processo foi encontrado
+            if ($processoParaEncerrar) {
+                # Encerra o processo
+                $processoParaEncerrar.Kill()
+                $textAreaLogs.AppendText("Processo com PID $processoPID encerrado com sucesso." + [Environment]::NewLine)
+
+                # # Fecha a janela após encerrar o processo
+                $textAreaLogs.AppendText("Fechando Janela..." + [Environment]::NewLine)
+                
+                Start-Sleep -Milliseconds 2000
+                $form.Close()
+            }
+            else {
+                # Se o processo não foi encontrado, exibe uma mensagem de erro
+                $textBox.AppendText("Nenhum processo encontrado com o PID $processoPID." + [Environment]::NewLine)
+            }
+        }
+        catch {
+            $textBox.AppendText("Erro ao encerrar o processo com PID $processoPID." + [Environment]::NewLine)
+        }
+    }
+    else {
+        $textBox.AppendText("Nenhum PID fornecido para encerrar o processo." + [Environment]::NewLine)
+    }
+
 }
 $buttonFechar = New-Object System.Windows.Forms.Button
 $buttonFechar.Text = "Fechar"
@@ -110,7 +143,6 @@ $buttonStartConfiguration.Text = "Iniciar Instalacao"
 $buttonStartConfiguration.Size = New-Object System.Drawing.Size(200, 30)
 $buttonStartConfiguration.Location = New-Object System.Drawing.Point(20, 50)
 $tab1.Controls.Add($buttonStartConfiguration)
-
 
 
 $buttonStartConfiguration.Add_Click({
@@ -160,13 +192,21 @@ $buttonStartConfiguration.Add_Click({
             foreach ($arquivo in $arquivos) {
                 # Copia o arquivo para o destino
                 Copy-Item -Path $arquivo.FullName -Destination $caminhoDestino -Force
-        
+
                 # Adiciona uma mensagem ao log
                 $logMessageArquivo = "Arquivo '$($arquivo.Name)' copiado para '$caminhoDestino'."
                 $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessageArquivo))
+                $labelPhpWindows.Text = "PHP - Instalando"
+                $labelPhpWindows.ForeColor = "Orange"
 
             }
-            
+
+            $labelPhpWindows.Text = "Reiniciar ..."
+            $labelPhpWindows.ForeColor = "Green"
+
+            $tabControl.TabPages.Remove($tab2)
+            $tabControl.TabPages.Remove($tab3)
+
             CriarLogs -caminhoLog "./Logs/Log_INS.log" -logs $textAreaLogs.Text
 
             
@@ -437,11 +477,18 @@ $caminhoArquivoIni = "config.ini"
 $_Host = LerVariavelDoArquivoIni -caminhoCompleto $caminhoArquivoIni -variavelDesejada "Host"
 $_Port = LerVariavelDoArquivoIni -caminhoCompleto $caminhoArquivoIni -variavelDesejada "Port"
 
-
 # Criando a aba "Test Servidor"
 $tab3 = New-Object System.Windows.Forms.TabPage
 $tab3.Text = "Teste AngueraBookAdmin"
 $tabControl.Controls.Add($tab3)
+
+$labelTest = New-Object System.Windows.Forms.Label
+$labelTest.Text = "Start"
+$labelTest.ForeColor = "Green"
+$labelTest.AutoSize = $true
+$labelTest.Location = New-Object System.Drawing.Point(270, 20)
+$labelTest.Font = New-Object System.Drawing.Font("Arial", 16, [System.Drawing.FontStyle]::Bold)  
+$tab3.Controls.Add($labelTest)
 
 # Adicionando os elementos à aba "Test Servidor"
 # Input 1
@@ -467,7 +514,6 @@ $pid_input.Enabled = $false
 $pid_input.Text = ""
 $pid_input.Size = New-Object System.Drawing.Size(100, 20)
 $tab3.Controls.Add($pid_input)
-
 
 # Botão
 $button_iniciar = New-Object System.Windows.Forms.Button
@@ -500,6 +546,34 @@ if ([string]::IsNullOrEmpty($textBox.Text)) {
 else {
     Write-Host "A variável `$textBox não está vazia."
     $textBox.Text = $logsContent
+}
+
+$labelPhpWindows = New-Object System.Windows.Forms.Label
+$labelPhpWindows.Text = ""
+$labelPhpWindows.ForeColor = "Green"
+$labelPhpWindows.AutoSize = $true
+$labelPhpWindows.Location = New-Object System.Drawing.Point(250, 55)
+$labelPhpWindows.Font = New-Object System.Drawing.Font("Arial", 16, [System.Drawing.FontStyle]::Bold)  
+$tab1.Controls.Add($labelPhpWindows)
+
+
+$tabControl.TabPages.Remove($tab2)
+$tabControl.TabPages.Remove($tab3)
+$unidade = $env:SystemDrive
+$pasta = "VersionPHP"
+$caminhoCompleto = Join-Path -Path $unidade -ChildPath $pasta
+if (Test-Path -Path $caminhoCompleto -PathType Container) {
+    Write-Host "A pasta '$pasta' existe em '$unidade'."
+    $labelPhpWindows.Text = "PHP - 200"
+    $labelPhpWindows.ForeColor = "Green"
+    $tabControl.TabPages.Add($tab2)
+    $tabControl.TabPages.Add($tab3)
+}
+else {
+    $labelPhpWindows.Text = "PHP - 404"
+    $labelPhpWindows.ForeColor = "Red"
+    $tabControl.TabPages.Remove($tab2)
+    $tabControl.TabPages.Remove($tab3)
 }
 
 
@@ -561,8 +635,49 @@ else {
 #         }
 #     })
 
+function AbrirJanelaComNavegador {
+    param (
+        [string]$url
+    )
+
+    # Crie uma nova instância do formulário
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "Navegador angueraAdmin 0.1"
+    $form.Size = New-Object System.Drawing.Size(800, 600)
+
+    # Crie uma instância do controle WebBrowser
+    $webBrowser = New-Object System.Windows.Forms.WebBrowser
+    $webBrowser.Dock = "Fill"
+    $webBrowser.Location = New-Object System.Drawing.Point(0, 0)
+    $webBrowser.Visible = $true
+
+    # Navegue para a URL especificada
+    $webBrowser.Navigate($url)
+
+    # Defina algumas configurações de segurança para permitir a execução de scripts
+    $webBrowser.ScriptErrorsSuppressed = $true # Suprime erros de script
+    $webBrowser.WebBrowserShortcutsEnabled = $true # Habilita atalhos do navegador
+    $webBrowser.ObjectForScripting = $true # Permite a comunicação entre o navegador e o código PowerShell
+
+    # Adicione o controle WebBrowser ao formulário
+    $form.Controls.Add($webBrowser)
+
+    # Exiba o formulário
+    $form.ShowDialog() | Out-Null
+}
+
+
 $button_iniciar.Add_Click({
         # Obtém o PID do processo anterior, se existir
+        # $hots_input.Visible = $false
+        # $port_input.Visible = $false
+        # $pid_input.Visible = $false
+        # $textBox.Visible = $false
+
+        Start-Sleep -Milliseconds 400
+
+        $webBrowser.Visible = $true
+
         $processoAnteriorPID = $pid_input.Text
         if ($processoAnteriorPID -ne "") {
             # Tenta encerrar o processo anterior
@@ -611,6 +726,9 @@ $button_iniciar.Add_Click({
                     }
                 }
 
+                $labelTest.Text = "Stop"
+                $labelTest.ForeColor = "Red"
+
                 $pidFilePath = "../../Keys/Pid_PHP.txt"
                 if (-not (Test-Path $pidFilePath)) {
                     New-Item -ItemType Directory -Force -Path "./Keys"
@@ -624,9 +742,11 @@ $button_iniciar.Add_Click({
                 # Inicia a leitura da saída do processo em segundo plano
                 Start-Job -ScriptBlock $leituraProcesso -ArgumentList $processo, $textBox
 
-                Start-Sleep -Seconds 3
+                Start-Sleep -Seconds 2
                 $url = "http://$($_Host):$($_Port)/angueraAdmin.php"
-                Start-Process $url
+                AbrirJanelaComNavegador -url $url
+                # $url = "http://$($_Host):$($_Port)/angueraAdmin.php"
+                # Start-Process $url
             }
             else {
                 # Se ocorreu um erro ao iniciar o processo
@@ -647,6 +767,9 @@ $button_stop.Add_Click({
                 # Obtém o processo com o PID especificado
                 $processoParaEncerrar = Get-Process -Id $processoPID -ErrorAction Stop
 
+                $labelTest.Text = "Start"
+                $labelTest.ForeColor = "Green"
+
                 # Verifica se o processo foi encontrado
                 if ($processoParaEncerrar) {
                     # Encerra o processo
@@ -655,8 +778,8 @@ $button_stop.Add_Click({
 
                     # Fecha a janela após encerrar o processo
                     $textBox.AppendText("Fechando Janela..." + [Environment]::NewLine)
-                    # Start-Sleep -Milliseconds 2000
-                    # $form.Close()
+                    Start-Sleep -Milliseconds 2000
+                    $form.Close()
                 }
                 else {
                     # Se o processo não foi encontrado, exibe uma mensagem de erro
