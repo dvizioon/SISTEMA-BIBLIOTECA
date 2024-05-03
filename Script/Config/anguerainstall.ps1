@@ -4,6 +4,43 @@ Add-Type -AssemblyName System.Drawing
 
 
 
+function CriarLogs {
+
+    param (
+        [string]$caminhoLog,
+        [string[]]$logs  # Aceita um array de strings para múltiplos logs
+    )
+
+    if (-not (Test-Path $caminhoLog)) {
+        New-Item -ItemType Directory -Force -Path (Split-Path $caminhoLog)
+        New-Item -ItemType File -Force -Path $caminhoLog
+    }
+
+    # Adiciona cada log em uma nova linha no arquivo
+    $logs | ForEach-Object {
+        $_ | Out-File -FilePath $caminhoLog -Encoding ASCII -Append
+    }
+
+    return "Sucesso: Logs carregados."
+}
+
+
+function CarregarLogs {
+
+    param (
+        [string]$caminhoLog
+    )
+
+    if (-not (Test-Path $caminhoLog)) {
+        New-Item -ItemType Directory -Force -Path (Split-Path $caminhoLog)
+        New-Item -ItemType File -Force -Path $caminhoLog
+    }
+
+    return Get-Content -Path $caminhoLog
+}
+
+
+
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Painel angueraBooks"
 $form.Size = New-Object System.Drawing.Size(440, 380)
@@ -95,12 +132,14 @@ $buttonStartConfiguration.Add_Click({
                 Remove-Item -Path $caminhoPasta -Recurse -Force
                 New-Item -ItemType Directory -Path $caminhoPasta -Force
                 $logMessage = "Pasta '$pasta' reinstalada em $unidade."
+
             }
             else {
                 # Se o usuário optar por não reinstalar, apenas informe que a pasta Ja existe
                 $logMessage = "A pasta '$pasta' Ja existe em $unidade."
             }
         }
+         
 
         # Adiciona o log ao textarea
         $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessage))
@@ -125,7 +164,11 @@ $buttonStartConfiguration.Add_Click({
                 # Adiciona uma mensagem ao log
                 $logMessageArquivo = "Arquivo '$($arquivo.Name)' copiado para '$caminhoDestino'."
                 $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessageArquivo))
+
             }
+            
+            CriarLogs -caminhoLog "../../Logs/Log_INS.log" -logs $textAreaLogs.Text
+
             
             # Adiciona o caminho diretamente ao PATH se não estiver presente
             if (-not ([System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::User) -like "*$caminhoPasta\$valor_destino*")) {
@@ -448,6 +491,17 @@ $textBox.Location = New-Object System.Drawing.Point(20, 110)
 $textBox.Size = New-Object System.Drawing.Size(350, 150)
 $tab3.Controls.Add($textBox)
 
+$logsContent = carregarLogs -caminhoLog "../../Logs/Log_PHP.log" 
+
+if ([string]::IsNullOrEmpty($textBox.Text)) {
+    Write-Host "A variável `$textBox está vazia."
+    $textBox.Text = $logsContent
+} else {
+    Write-Host "A variável `$textBox não está vazia."
+    $textBox.Text = $logsContent
+}
+
+
 # $button_iniciar.Add_Click({
 #         # Obtém o PID do processo anterior, se existir
 #         $processoAnteriorPID = $pid_input.Text
@@ -556,6 +610,16 @@ $button_iniciar.Add_Click({
                     }
                 }
 
+                $pidFilePath = "../../Keys/Pid_PHP.txt"
+                if (-not (Test-Path $pidFilePath)) {
+                    New-Item -ItemType Directory -Force -Path "./Keys"
+                    New-Item -ItemType File -Force -Path $pidFilePath
+                }
+
+                $processId | Out-File -FilePath $pidFilePath -Encoding ASCII -Force
+                
+                CriarLogs -caminhoLog "../../Logs/Log_PHP.log" -logs $textBox.Text
+                
                 # Inicia a leitura da saída do processo em segundo plano
                 Start-Job -ScriptBlock $leituraProcesso -ArgumentList $processo, $textBox
 

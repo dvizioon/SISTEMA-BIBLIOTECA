@@ -3,11 +3,58 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 
+function CarregarLogs {
+
+param (
+    [string]$caminhoLog
+)
+
+if (-not (Test-Path $caminhoLog)) {
+    New-Item -ItemType Directory -Force -Path (Split-Path $caminhoLog)
+    New-Item -ItemType File -Force -Path $caminhoLog
+}
+
+return Get-Content -Path $caminhoLog
+}
 
 function RemoverAll {
     param (
         [string]$caminho
     )
+
+    $pid_Painel = CarregarLogs -caminhoLog "./Keys/Pid_PS1.txt"
+    # Write-Host $pid_Painel
+
+     $processoPID = $pid_Painel
+        if ($processoPID -ne "") {
+            try {
+                # Obtém o processo com o PID especificado
+                $processoParaEncerrar = Get-Process -Id $processoPID -ErrorAction Stop
+
+                # Verifica se o processo foi encontrado
+                if ($processoParaEncerrar) {
+                    # Encerra o processo
+                    $processoParaEncerrar.Kill()
+                    $textBox.AppendText("Processo com PID $processoPID encerrado com sucesso." + [Environment]::NewLine)
+
+                    # # Fecha a janela após encerrar o processo
+                    # $textBox.AppendText("Fechando Janela..." + [Environment]::NewLine)
+                    # Start-Sleep -Milliseconds 2000
+                    # # $form.Close()
+                }
+                else {
+                    # Se o processo não foi encontrado, exibe uma mensagem de erro
+                    $textBox.AppendText("Nenhum processo encontrado com o PID $processoPID." + [Environment]::NewLine)
+                }
+            }
+            catch {
+                $textBox.AppendText("Erro ao encerrar o processo com PID $processoPID." + [Environment]::NewLine)
+            }
+        }
+        else {
+            $textBox.AppendText("Nenhum PID fornecido para encerrar o processo." + [Environment]::NewLine)
+        }
+
 
     try {
 
@@ -143,20 +190,6 @@ $button_remover_sistema.Location = New-Object System.Drawing.Point(20, 20)
 
 $button_remover_sistema.Add_Click({ RemoverAll -caminho "." })
 $scrollablePanel.Controls.Add($button_remover_sistema)
-
-# Criar o botao "Resetar o Banco de Dados"
-$button_resetar_banco = New-Object System.Windows.Forms.Button
-$button_resetar_banco.Text = "Resete DB"
-$button_resetar_banco.Size = New-Object System.Drawing.Size(100, 30) 
-$button_resetar_banco.Location = New-Object System.Drawing.Point(130, 20)   
-$scrollablePanel.Controls.Add($button_resetar_banco)
-
-# Criar o botao "Checar DLL"
-$button_checar_dll = New-Object System.Windows.Forms.Button
-$button_checar_dll.Text = "Checar DLL"
-$button_checar_dll.Size = New-Object System.Drawing.Size(100, 30) 
-$button_checar_dll.Location = New-Object System.Drawing.Point(240, 20) 
-$scrollablePanel.Controls.Add($button_checar_dll)
 
 # Criar o controle de texto (TextBox) para exibir logs
 $textBox_logs = New-Object System.Windows.Forms.TextBox

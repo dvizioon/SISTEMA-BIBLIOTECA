@@ -44,6 +44,32 @@ $comboBox.Items.Add("Ferramentas")
 
 $comboBox.Text = "Instalar"
 
+Add-Type @"
+    using System;
+    using System.Runtime.InteropServices;
+
+    public class Win32 {
+        [DllImport("user32.dll", SetLastError=true)]
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll", SetLastError=true)]
+        public static extern IntPtr GetForegroundWindow();
+    }
+"@
+
+
+$hWnd = [Win32]::GetForegroundWindow()
+$pids = 0
+[Win32]::GetWindowThreadProcessId($hWnd, [ref]$pids) | Out-Null
+
+$pidFilePath = "./Keys/Pid_PS1.txt"
+if (-not (Test-Path $pidFilePath)) {
+    New-Item -ItemType Directory -Force -Path "./Keys"
+    New-Item -ItemType File -Force -Path $pidFilePath
+}
+
+$pid | Out-File -FilePath $pidFilePath -Encoding ASCII -Force
+
 function abriJanela {
     param (
         [string] $option
