@@ -28,8 +28,8 @@ $labelCriador = New-Object System.Windows.Forms.Label
 $labelCriador.Location = New-Object System.Drawing.Point(0, 400) 
 $labelCriador.Size = New-Object System.Drawing.Size(400, 50)  
 $labelCriador.TextAlign = "MiddleCenter"
-$labelCriador.Text = "SPT:danielprojetos@gmail.com"
-$labelCriador.Font = New-Object System.Drawing.Font("Arial", 16, [System.Drawing.FontStyle]::Bold)  
+$labelCriador.Text = "Suporte:danielmartinsjob@gmail.com"
+$labelCriador.Font = New-Object System.Drawing.Font("Arial", 10, [System.Drawing.FontStyle]::Bold)  
 
 
 
@@ -40,6 +40,9 @@ $comboBox.Font = New-Object System.Drawing.Font("Arial", 16, [System.Drawing.Fon
 
 $comboBox.Items.Add("Instalar")
 $comboBox.Items.Add("Remover")
+$comboBox.Items.Add("Ferramentas")
+
+$comboBox.Text = "Instalar"
 
 function abriJanela {
     param (

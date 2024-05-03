@@ -211,17 +211,35 @@ $comboBox.Add_SelectedIndexChanged({
         $conteudoArquivoAtualizado = $conteudoArquivo -replace "Theme = .+", "Theme = $temaSelecionado"
         $conteudoArquivoAtualizado | Out-File -FilePath $caminhoArquivo -Force
         $textBoxConfig.Clear()
+
+        # Carrega novamente o conteúdo do arquivo atualizado
+        $conteudoArquivoAtualizado = Get-Content $caminhoArquivo
+        # Procura pelo valor de "Lang" no conteúdo do arquivo atualizado
+        $valorLang = $conteudoArquivoAtualizado | Where-Object { $_ -match "^Lang\s*=\s*(.*)" } | ForEach-Object { $Matches[1] }
+        $valorHost = $conteudoArquivoAtualizado | Where-Object { $_ -match "^Host\s*=\s*(.*)" } | ForEach-Object { $Matches[1] }
+        $valorPort = $conteudoArquivoAtualizado | Where-Object { $_ -match "^Port\s*=\s*(.*)" } | ForEach-Object { $Matches[1] }
+        $valorPass = $conteudoArquivoAtualizado | Where-Object { $_ -match "^Pass\s*=\s*(.*)" } | ForEach-Object { $Matches[1] }
+        $valorDir = $conteudoArquivoAtualizado | Where-Object { $_ -match "^Dir\s*=\s*(.*)" } | ForEach-Object { $Matches[1] }
+        # Exibe o valor de Lang
+        # Write-Host "Valor de Lang: $valorLang"
+
         $conteudoArquivoFormatado = @"
 [Panel]
 Theme = $temaSelecionado
-Lang  = en
-Host  = localhost
-Port  = 8000
-Pass  = admin
-Dir   = .
+Lang  = $valorLang
+Host  = $valorHost
+Port  = $valorPort
+Pass  = $valorPass
+Dir   = $valorDir
 "@
         # Cria o arquivo com o conteúdo padrão
         $conteudoArquivoFormatado
+
+        # Salva o conteúdo atualizado no arquivo
+        $conteudoArquivoFormatado | Out-File -FilePath $caminhoArquivo -Force
+
+        # Carrega novamente o conteúdo do arquivo atualizado
+        $conteudoArquivoAtualizado = Get-Content $caminhoArquivo
        
         $textBoxConfig.AppendText($conteudoArquivoFormatado)
     })
@@ -398,6 +416,15 @@ $port_input.Text = $_Port
 $port_input.Size = New-Object System.Drawing.Size(200, 20)
 $tab3.Controls.Add($port_input)
 
+# Input 3
+$pid_input = New-Object System.Windows.Forms.TextBox
+$pid_input.Location = New-Object System.Drawing.Point(250, 50)
+$pid_input.Enabled = $false
+$pid_input.Text = ""
+$pid_input.Size = New-Object System.Drawing.Size(100, 20)
+$tab3.Controls.Add($pid_input)
+
+
 # Botão
 $button_iniciar = New-Object System.Windows.Forms.Button
 $button_iniciar.Location = New-Object System.Drawing.Point(20, 80)
@@ -420,65 +447,164 @@ $textBox.Location = New-Object System.Drawing.Point(20, 110)
 $textBox.Size = New-Object System.Drawing.Size(350, 150)
 $tab3.Controls.Add($textBox)
 
-# Evento de clique do botão
+# $button_iniciar.Add_Click({
+#         # Obtém o PID do processo anterior, se existir
+#         $processoAnteriorPID = $pid_input.Text
+#         if ($processoAnteriorPID -ne "") {
+#             # Tenta encerrar o processo anterior
+#             try {
+#                 $processoAnterior = Get-Process -Id $processoAnteriorPID -ErrorAction Stop
+#                 $processoAnterior.Kill()
+#                 $textBox.AppendText("Processo anterior (PID: $processoAnteriorPID) encerrado com sucesso." + [Environment]::NewLine)
+#             }
+#             catch {
+#                 $textBox.AppendText("Erro ao encerrar o processo anterior (PID: $processoAnteriorPID)." + [Environment]::NewLine)
+#             }
+#         }
+
+#         # Define o comando a ser executado
+#         $comando = "cd ./Packages && cd phpLiteAdmin && php_5.exe -S $($_Host):$($_Port)"
+
+#         # Cria um processo para executar o comando e redireciona a saída padrão
+#         $processo = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $comando" -NoNewWindow -PassThru
+
+#         # Se o processo foi iniciado com sucesso
+#         if ($processo) {
+#             Wait-Process $processId = $processo.Id  # Obtém o PID do processo
+
+#             # Atualiza o valor de $pid_input.Text com o PID atual
+#             $pid_input.Text = $processId
+
+#             $textBox.AppendText("O PHP Server foi iniciado com sucesso. PID: $processId" + [Environment]::NewLine)
+#             $textBox.AppendText("Iniciando Teste ..." + [Environment]::NewLine)
+#             # URL a ser aberta
+
+#             # Função para ler a saída do processo e exibir na caixa de texto
+#             $leituraProcesso = {
+#                 param($processo, $textBox)
+
+#                 while (!$processo.HasExited) {
+#                     $linha = $processo.StandardOutput.ReadLine()
+#                     if ($linha -ne $null) {
+#                         $textBox.BeginInvoke([Action[string]] { param($line) $textBox.AppendText($line + [Environment]::NewLine) }, $linha) | Out-Null
+#                     }
+#                     Start-Sleep -Milliseconds 100  # Aguarda um curto período para evitar bloqueios
+#                 }
+#             }
+
+#             # Inicia a leitura da saída do processo em segundo plano
+#             Start-Job -ScriptBlock $leituraProcesso -ArgumentList $processo, $textBox
+
+#             Start-Sleep -Seconds 3
+#             $url = "http://$($_Host):$($_Port)/angueraAdmin.php"
+#             Start-Process $url
+#         }
+#         else {
+#             # Se ocorreu um erro ao iniciar o processo
+#             $textBox.AppendText("Erro ao iniciar o PHP Server." + [Environment]::NewLine)
+#         }
+#     })
+
 $button_iniciar.Add_Click({
-        # Define o comando a ser executado
-        $comando = "cd ./Packages && cd phpLiteAdmin && php_5.exe -S $($_Host):$($_Port)"
+        # Obtém o PID do processo anterior, se existir
+        $processoAnteriorPID = $pid_input.Text
+        if ($processoAnteriorPID -ne "") {
+            # Tenta encerrar o processo anterior
+            try {
+                $processoAnterior = Get-Process -Id $processoAnteriorPID -ErrorAction Stop
+                $processoAnterior.Kill()
+                $textBox.AppendText("Processo anterior (PID: $processoAnteriorPID) encerrado com sucesso." + [Environment]::NewLine)
+            }
+            catch {
+                $textBox.AppendText("Erro ao encerrar o processo anterior (PID: $processoAnteriorPID)." + [Environment]::NewLine)
+            }
+        }
 
-        # Cria um processo para executar o comando e redireciona a saída padrão
-        $processo = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $comando" -NoNewWindow -PassThru
+        # Define o caminho para o diretório onde o PHP será iniciado
+        $caminhoPHP = "./Packages/phpLiteAdmin"
 
-        # Se o processo foi iniciado com sucesso
-        if ($processo) {
-            $textBox.AppendText("O PHP Server foi iniciado com sucesso." + [Environment]::NewLine)
-            $textBox.AppendText("Iniciando Teste ..." + [Environment]::NewLine)
-            # URL a ser aberta
+        # Verifica se o diretório existe
+        if (Test-Path $caminhoPHP -PathType Container) {
+            # Entra no diretório onde o PHP será iniciado
+            Set-Location $caminhoPHP
 
-            # Função para ler a saída do processo e exibir na caixa de texto
-            $leituraProcesso = {
-                param($processo, $textBox)
+            # Inicia o PHP diretamente
+            $processo = Start-Process -FilePath "php_5.exe" -ArgumentList "-S $($_Host):$($_Port)"  -NoNewWindow -PassThru
 
-                while (!$processo.HasExited) {
-                    $linha = $processo.StandardOutput.ReadLine()
-                    if ($linha -ne $null) {
-                        $textBox.BeginInvoke([Action[string]] { param($line) $textBox.AppendText($line + [Environment]::NewLine) }, $linha) | Out-Null
+            # Se o processo foi iniciado com sucesso
+            if ($processo) {
+                $processId = $processo.Id  # Obtém o PID do processo
+
+                # Atualiza o valor de $pid_input.Text com o PID atual
+                $pid_input.Text = $processId
+
+                $textBox.AppendText("O PHP Server foi iniciado com sucesso. PID: $processId" + [Environment]::NewLine)
+                $textBox.AppendText("Iniciando Teste ..." + [Environment]::NewLine)
+                # URL a ser aberta
+
+                # Função para ler a saída do processo e exibir na caixa de texto
+                $leituraProcesso = {
+                    param($processo, $textBox)
+
+                    while (!$processo.HasExited) {
+                        $linha = $processo.StandardOutput.ReadLine()
+                        if ($linha -ne $null) {
+                            $textBox.BeginInvoke([Action[string]] { param($line) $textBox.AppendText($line + [Environment]::NewLine) }, $linha) | Out-Null
+                        }
+                        Start-Sleep -Milliseconds 100  # Aguarda um curto período para evitar bloqueios
                     }
-                    Start-Sleep -Milliseconds 100  # Aguarda um curto período para evitar bloqueios
+                }
+
+                # Inicia a leitura da saída do processo em segundo plano
+                Start-Job -ScriptBlock $leituraProcesso -ArgumentList $processo, $textBox
+
+                Start-Sleep -Seconds 3
+                $url = "http://$($_Host):$($_Port)/angueraAdmin.php"
+                Start-Process $url
+            }
+            else {
+                # Se ocorreu um erro ao iniciar o processo
+                $textBox.AppendText("Erro ao iniciar o PHP Server." + [Environment]::NewLine)
+            }
+        }
+        else {
+            # Se o diretório não existir, exibe uma mensagem de erro
+            $textBox.AppendText("O diretório '$caminhoPHP' não foi encontrado." + [Environment]::NewLine)
+        }
+    })
+
+
+$button_stop.Add_Click({
+        $processoPID = $pid_input.Text
+        if ($processoPID -ne "") {
+            try {
+                # Obtém o processo com o PID especificado
+                $processoParaEncerrar = Get-Process -Id $processoPID -ErrorAction Stop
+
+                # Verifica se o processo foi encontrado
+                if ($processoParaEncerrar) {
+                    # Encerra o processo
+                    $processoParaEncerrar.Kill()
+                    $textBox.AppendText("Processo com PID $processoPID encerrado com sucesso." + [Environment]::NewLine)
+
+                    # Fecha a janela após encerrar o processo
+                    $textBox.AppendText("Fechando Janela..." + [Environment]::NewLine)
+                    # Start-Sleep -Milliseconds 2000
+                    # $form.Close()
+                }
+                else {
+                    # Se o processo não foi encontrado, exibe uma mensagem de erro
+                    $textBox.AppendText("Nenhum processo encontrado com o PID $processoPID." + [Environment]::NewLine)
                 }
             }
-
-            # Inicia a leitura da saída do processo em segundo plano
-            Start-Job -ScriptBlock $leituraProcesso -ArgumentList $processo, $textBox
-
-            Start-Sleep -Seconds 3
-            $url = "http://$($_Host):$($_Port)/angueraAdmin.php"
-            Start-Process $url
+            catch {
+                $textBox.AppendText("Erro ao encerrar o processo com PID $processoPID." + [Environment]::NewLine)
+            }
         }
         else {
-            # Se ocorreu um erro ao iniciar o processo
-            $textBox.AppendText("Erro ao iniciar o PHP Server." + [Environment]::NewLine)
+            $textBox.AppendText("Nenhum PID fornecido para encerrar o processo." + [Environment]::NewLine)
         }
     })
-
-
-# Evento de clique do botão de parar
-$button_stop.Add_Click({
-        # Verifica se o processo foi criado
-        if ($processo) {
-            # Encerra o processo
-            $processo.Kill()
-        
-            # Adiciona uma mensagem na caixa de texto
-            $textBox.AppendText("Processo interrompido." + [Environment]::NewLine)
-        }
-        else {
-            # Se o processo não foi criado, exibe uma mensagem de erro
-            $textBox.AppendText("Nenhum processo em execução para interromper." + [Environment]::NewLine)
-        }
-    })
-
-
-
 
 
 $form.ShowDialog() | Out-Null
