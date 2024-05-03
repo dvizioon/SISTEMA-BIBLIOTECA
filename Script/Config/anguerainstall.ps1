@@ -240,9 +240,10 @@ Dir   = $valorDir
 
         # Carrega novamente o conteúdo do arquivo atualizado
         $conteudoArquivoAtualizado = Get-Content $caminhoArquivo
-       
+
         $textBoxConfig.AppendText($conteudoArquivoFormatado)
     })
+
 $tab2.Controls.Add($comboBox)
 
 
