@@ -167,7 +167,7 @@ $buttonStartConfiguration.Add_Click({
 
             }
             
-            CriarLogs -caminhoLog "../../Logs/Log_INS.log" -logs $textAreaLogs.Text
+            CriarLogs -caminhoLog "./Logs/Log_INS.log" -logs $textAreaLogs.Text
 
             
             # Adiciona o caminho diretamente ao PATH se não estiver presente
@@ -496,7 +496,8 @@ $logsContent = carregarLogs -caminhoLog "../../Logs/Log_PHP.log"
 if ([string]::IsNullOrEmpty($textBox.Text)) {
     Write-Host "A variável `$textBox está vazia."
     $textBox.Text = $logsContent
-} else {
+}
+else {
     Write-Host "A variável `$textBox não está vazia."
     $textBox.Text = $logsContent
 }
@@ -618,7 +619,7 @@ $button_iniciar.Add_Click({
 
                 $processId | Out-File -FilePath $pidFilePath -Encoding ASCII -Force
                 
-                CriarLogs -caminhoLog "../../Logs/Log_PHP.log" -logs $textBox.Text
+                CriarLogs -caminhoLog "./Logs/Log_PHP.log" -logs $textBox.Text
                 
                 # Inicia a leitura da saída do processo em segundo plano
                 Start-Job -ScriptBlock $leituraProcesso -ArgumentList $processo, $textBox
