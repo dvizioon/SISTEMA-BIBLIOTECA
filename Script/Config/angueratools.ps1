@@ -31,13 +31,16 @@ function CriarBancoDeDados {
         $command.CommandText = $sqlScript
         $command.ExecuteNonQuery()
 
+        
         [System.Windows.Forms.MessageBox]::Show("Banco de dados criado com sucesso", "Sucesso", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-
+        
+        $connection.Close()
 
         Write-Host "Banco de dados criado com sucesso em: $databasePath\$databaseName"
-        $connection.Close()
+        
     }
     else {
+        $connection.Close()
         [System.Windows.Forms.MessageBox]::Show("Erro ao criar o banco de dados:`n Banco ja Existe", "Erro", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     }
 }
@@ -187,7 +190,7 @@ $buttonDelete.ForeColor = "White"
 $buttonDelete.BackColor = "DarkRed"
 $buttonDelete.Add_Click({
         # Verifica se o banco de dados existe
-        $databaseExists = Test-Path "./Packages/phpLiteAdmin/angueraBook.sqlite"
+        $databaseExists = Test-Path "$diretorioDll\Packages\phpLiteAdmin\angueraBook.sqlite"
 
         if ($databaseExists) {
             # Exibe uma mensagem de confirmacao antes de deletar o banco de dados
@@ -196,7 +199,7 @@ $buttonDelete.Add_Click({
             if ($result -eq "Yes") {
                 try {
                     # Remove o arquivo do banco de dados
-                    Remove-Item -Path "./Packages/phpLiteAdmin/angueraBook.sqlite" -Force
+                    Remove-Item -Path "$diretorioDll\Packages\phpLiteAdmin\angueraBook.sqlite" -Force
 
                     Write-Host "O banco de dados foi deletado com sucesso!"
                     $textBoxLog.AppendText("`nO banco de dados foi deletado com sucesso!")
@@ -226,7 +229,7 @@ $buttonReset.BackColor = "DarkGreen"
 $buttonReset.Add_Click({
         # Verifica se o banco de dados existe
 
-        $databaseExists = Test-Path "./Packages/phpLiteAdmin/angueraBook.sqlite"
+        $databaseExists = Test-Path "$diretorioDll\Packages\phpLiteAdmin\angueraBook.sqlite"
     
         if ($databaseExists) {
             # Exibe uma mensagem de confirmacao antes de redefinir as tabelas
@@ -235,7 +238,7 @@ $buttonReset.Add_Click({
             if ($result -eq "Yes") {
                 try {
                     # Cria uma conexao com o banco de dados
-                    $connectionString = "Data Source=./Packages/phpLiteAdmin/angueraBook.sqlite;Version=3;"
+                    $connectionString = "Data Source=$diretorioDll\Packages\phpLiteAdmin\angueraBook.sqlite;Version=3;"
                     $connection = New-Object System.Data.SQLite.SQLiteConnection($connectionString)
                     $connection.Open()
 

@@ -1,3 +1,15 @@
 caminhos:
-  - \Packages\.NET\System.Data.SQLite.dll
-  - \Packages\.NET\SQLite.Interop.dll
+  - \Packages\.NET\
+  - \Packages\phpLiteAdmin
+  - \Script\Config
+
+credenciais: 
+  - \secret
+
+sql:
+  - \Packages\Table.sql
+
+Painel:
+  - 350
+  - 400
+  - Ligth

@@ -9,7 +9,7 @@
 //
 // Please see https://bitbucket.org/phpliteadmin/public/wiki/Configuration for more details
 
-$painel_ini = parse_ini_file('../../config.ini', true);
+$painel_ini = parse_ini_file('./config.ini', true);
 // var_dump($painel_ini);
 // echo $painel_ini["Panel"]["Pass"] . "<br>";
 

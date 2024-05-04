@@ -2,7 +2,7 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-
+$diretorioDll = $PWD.Path
 
 function CriarLogs {
 
@@ -107,7 +107,7 @@ function FecharFormulario {
                 # # Fecha a janela após encerrar o processo
                 $textAreaLogs.AppendText("Fechando Janela..." + [Environment]::NewLine)
                 
-                Start-Sleep -Milliseconds 2000
+                Start-Sleep -Milliseconds 500
                 $form.Close()
             }
             else {
@@ -206,8 +206,8 @@ $buttonStartConfiguration.Add_Click({
 
             $tabControl.TabPages.Remove($tab2)
             $tabControl.TabPages.Remove($tab3)
-            CriarLogs -caminhoLog "./Logs/Log_INS.log" -logs ""
-            CriarLogs -caminhoLog "./Logs/Log_INS.log" -logs $textAreaLogs.Text
+            CriarLogs -caminhoLog "$diretorioDll\Logs\Log_INS.log" -logs ""
+            CriarLogs -caminhoLog "$diretorioDll\Logs\Log_INS.log" -logs $textAreaLogs.Text
 
             
             # Adiciona o caminho diretamente ao PATH se não estiver presente
@@ -537,17 +537,6 @@ $textBox.Location = New-Object System.Drawing.Point(20, 110)
 $textBox.Size = New-Object System.Drawing.Size(350, 150)
 $tab3.Controls.Add($textBox)
 
-$logsContent = carregarLogs -caminhoLog "../../Logs/Log_PHP.log" 
-
-if ([string]::IsNullOrEmpty($textBox.Text)) {
-    Write-Host "A variável `$textBox está vazia."
-    $textBox.Text = $logsContent
-}
-else {
-    Write-Host "A variável `$textBox não está vazia."
-    $textBox.Text = $logsContent
-}
-
 $labelPhpWindows = New-Object System.Windows.Forms.Label
 $labelPhpWindows.Text = ""
 $labelPhpWindows.ForeColor = "Green"
@@ -668,11 +657,6 @@ function AbrirJanelaComNavegador {
 
 
 $button_iniciar.Add_Click({
-        # Obtém o PID do processo anterior, se existir
-        # $hots_input.Visible = $false
-        # $port_input.Visible = $false
-        # $pid_input.Visible = $false
-        # $textBox.Visible = $false
 
         Start-Sleep -Milliseconds 400
 
@@ -692,8 +676,10 @@ $button_iniciar.Add_Click({
         }
 
         # Define o caminho para o diretório onde o PHP será iniciado
-        $caminhoPHP = "./Packages/phpLiteAdmin"
+        $caminhoPHP = "$diretorioDll\Packages\phpLiteAdmin"
 
+        
+        $textBox.AppendText("Caminho Encontrado => : $caminhoPHP " + [Environment]::NewLine)
         # Verifica se o diretório existe
         if (Test-Path $caminhoPHP -PathType Container) {
             # Entra no diretório onde o PHP será iniciado
@@ -701,7 +687,10 @@ $button_iniciar.Add_Click({
 
             # Inicia o PHP diretamente
             $processo = Start-Process -FilePath "php_5.exe" -ArgumentList "-S $($_Host):$($_Port)"  -NoNewWindow -PassThru
-
+            
+            $textBox.AppendText("Processamento Criado => : $processo " + [Environment]::NewLine)
+            $textBox.AppendText("Processamento Criado => : $($processo.MachineName) " + [Environment]::NewLine)
+            $textBox.AppendText("Processamento Criado => : $($processo.CPU) " + [Environment]::NewLine)
             # Se o processo foi iniciado com sucesso
             if ($processo) {
                 $processId = $processo.Id  # Obtém o PID do processo
@@ -729,21 +718,23 @@ $button_iniciar.Add_Click({
                 $labelTest.Text = "Stop"
                 $labelTest.ForeColor = "Red"
 
-                $pidFilePath = "../../Keys/Pid_PHP.txt"
+                $pidFilePath = "$diretorioDll\Keys\Pid_PHP.txt"
                 if (-not (Test-Path $pidFilePath)) {
                     New-Item -ItemType Directory -Force -Path "./Keys"
                     New-Item -ItemType File -Force -Path $pidFilePath
                 }
 
                 $processId | Out-File -FilePath $pidFilePath -Encoding ASCII -Force
+
+                # $diretorioDll = $PWD.Path
                 
-                CriarLogs -caminhoLog "./Logs/Log_PHP.log" -logs $textBox.Text
+                CriarLogs -caminhoLog "$diretorioDll\Logs\Log_PHP.log" -logs $textBox.Text
                 
                 # Inicia a leitura da saída do processo em segundo plano
                 Start-Job -ScriptBlock $leituraProcesso -ArgumentList $processo, $textBox
 
                 Start-Sleep -Seconds 2
-                $url = "http://$($_Host):$($_Port)/angueraAdmin.php"
+                $url = "http://$($_Host):$($_Port)"
                 AbrirJanelaComNavegador -url $url
                 # $url = "http://$($_Host):$($_Port)/angueraAdmin.php"
                 # Start-Process $url
