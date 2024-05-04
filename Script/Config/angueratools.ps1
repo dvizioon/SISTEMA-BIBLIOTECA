@@ -2,7 +2,9 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 # Carregar a DLL do System.Data.SQLite
-$diretorioDll = $PWD.Path
+$diretorioPadrao = "."
+$diretorioDll = if ($PWD -ne $null) { $PWD.Path } else { $diretorioPadrao }
+
 [Reflection.Assembly]::LoadFile("$diretorioDll\Packages\.NET\System.Data.SQLite.dll")
 
 function CriarBancoDeDados {

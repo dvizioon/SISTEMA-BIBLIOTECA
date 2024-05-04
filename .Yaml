@@ -4,12 +4,12 @@ caminhos:
   - \Script\Config
 
 credenciais: 
-  - \secret
+  - secret\users.json
 
 sql:
   - \Packages\Table.sql
 
-Painel:
-  - 350
-  - 400
-  - Ligth
+url:
+  - localhost:2314
+  - http://localhost:2314
+

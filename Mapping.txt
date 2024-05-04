@@ -1,5 +1,10 @@
 App
     - Components
+       - autenticador.py
+    - Modules
+       - criarSecret.py
+       - criarShar256.py
+       - lerSecret.py
     - Screens
        - Login.py
-    - main.py
+- main.py
