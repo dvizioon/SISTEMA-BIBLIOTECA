@@ -1,0 +1,22 @@
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Arquivos de compilação
+*.o
+*.out
+*.class
+
+# Arquivos de log e caches
+*.log
+logs/
+.cache/
+
+# Dependências e bibliotecas
+Python/
+
+# Arquivos de configuração específicos do usuário
+.DS_Store
+.idea/
+.vscode/
+secret/
