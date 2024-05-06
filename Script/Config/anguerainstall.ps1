@@ -1,7 +1,7 @@
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-
+$diretorioPai = $PWD.Path
 $diretorioDll = $PWD.Path
 
 function CriarLogs {
@@ -60,19 +60,28 @@ $tabControl.Controls.Add($tab1)
 
 
 $labelPhpVersion = New-Object System.Windows.Forms.Label
-$labelPhpVersion.Text = "PHP --version [5.4]"
+$labelPhpVersion.Text = "PHP -> [5.4]"
 $labelPhpVersion.AutoSize = $true
 $labelPhpVersion.Location = New-Object System.Drawing.Point(20, 20)
 $tab1.Controls.Add($labelPhpVersion)
 
+$comboBox = New-Object System.Windows.Forms.ComboBox
+$comboBox.Location = New-Object System.Drawing.Point(100, 15)
+$comboBox.Size = New-Object System.Drawing.Size(100, 50)
+$comboBox.Font = New-Object System.Drawing.Font("Arial", 10, [System.Drawing.FontStyle]::Bold) 
 
-$caminhoPrincipal = "./Packages"
-$nomeDiretorio = "php5.4.0"
+$comboBox.Items.Add("php5.4.0.zip")
+$comboBox.Text = "Versoes..."
+
+
+Write-Host $diretorioPai
+$caminhoPrincipal = "$diretorioPai\Packages\Import"
+$nomeDiretorio = "php5.4.0.zip"
 $caminhoSubdiretorio = Join-Path -Path $caminhoPrincipal -ChildPath $nomeDiretorio
 
-if (Test-Path -Path $caminhoSubdiretorio -PathType Container) {
-    Write-Host "Diretorio '$nomeDiretorio' encontrado."
-    $logMessage = "Diretorio '$nomeDiretorio' encontrado."
+if (Test-Path -Path $caminhoSubdiretorio) {
+    Write-Host "Arquivo '$nomeDiretorio' encontrado."
+    $logMessage = "Arquivo '$nomeDiretorio' encontrado."
     $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessage))
 }
 else {
@@ -80,38 +89,32 @@ else {
     $form.Close()
 }
 
+
 $inputPhpVersion = New-Object System.Windows.Forms.TextBox
 $inputPhpVersion.Text = $nomeDiretorio
-$inputPhpVersion.Location = New-Object System.Drawing.Point(150, 20)
-$inputPhpVersion.Size = New-Object System.Drawing.Size(300, 20)
+$inputPhpVersion.Location = New-Object System.Drawing.Point(220, 15)
+$inputPhpVersion.Size = New-Object System.Drawing.Size(150, 23)
+$inputPhpVersion.Multiline = $true
 $inputPhpVersion.Enabled = $false
 $tab1.Controls.Add($inputPhpVersion)
+$tab1.Controls.Add($comboBox)
 
 
 function FecharFormulario {
-    $pid_Painel = CarregarLogs -caminhoLog "./Keys/Pid_PS1.txt"
-    # Write-Host $pid_Painel
-
+    $pid_Painel = CarregarLogs -caminhoLog "$diretorioPai\Keys\Pid_PS1.txt"
+    Write-Host $pid_Painel
     $processoPID = $pid_Painel
     if ($processoPID -ne "") {
         try {
-            # Obtém o processo com o PID especificado
             $processoParaEncerrar = Get-Process -Id $processoPID -ErrorAction Stop
-
-            # Verifica se o processo foi encontrado
             if ($processoParaEncerrar) {
-                # Encerra o processo
                 $processoParaEncerrar.Kill()
                 $textAreaLogs.AppendText("Processo com PID $processoPID encerrado com sucesso." + [Environment]::NewLine)
-
-                # # Fecha a janela após encerrar o processo
                 $textAreaLogs.AppendText("Fechando Janela..." + [Environment]::NewLine)
-                
                 Start-Sleep -Milliseconds 500
                 $form.Close()
             }
             else {
-                # Se o processo não foi encontrado, exibe uma mensagem de erro
                 $textBox.AppendText("Nenhum processo encontrado com o PID $processoPID." + [Environment]::NewLine)
             }
         }
@@ -122,8 +125,8 @@ function FecharFormulario {
     else {
         $textBox.AppendText("Nenhum PID fornecido para encerrar o processo." + [Environment]::NewLine)
     }
-
 }
+
 $buttonFechar = New-Object System.Windows.Forms.Button
 $buttonFechar.Text = "Fechar"
 $buttonFechar.Size = New-Object System.Drawing.Size(200, 30)
@@ -144,91 +147,111 @@ $buttonStartConfiguration.Size = New-Object System.Drawing.Size(200, 30)
 $buttonStartConfiguration.Location = New-Object System.Drawing.Point(20, 50)
 $tab1.Controls.Add($buttonStartConfiguration)
 
+function criarPastaExtrairZip {
+    param (
+        [string]$valor_destino,
+        [string]$caminhoOrigemZip,
+        [string]$caminhoDestino
+    )
+
+    # Verifica se o arquivo ZIP de origem existe
+    if (Test-Path $caminhoOrigemZip -PathType Leaf) {
+        $textAreaLogs.Clear()
+        $textAreaLogs.ForeColor = "Green"
+
+        # Extrai o conteúdo do arquivo ZIP diretamente na pasta de destino
+        Expand-Archive -Path $caminhoOrigemZip -DestinationPath $caminhoDestino -Force
+
+        # Adiciona uma mensagem ao log
+        $logMessageArquivo = "Arquivo '$valor_destino.zip' extraido para '$caminhoDestino'."
+        $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessageArquivo))
+        $labelPhpWindows.Text = "PHP - Instalando"
+        $labelPhpWindows.ForeColor = "Orange"
+
+        $labelPhpWindows.Text = "Reiniciar ..."
+        $labelPhpWindows.ForeColor = "Green"
+
+        $tabControl.TabPages.Remove($tab2)
+        $tabControl.TabPages.Remove($tab3)
+        $tabControl.TabPages.Remove($tab4)
+        CriarLogs -caminhoLog "$diretorioDll\Logs\Log_INS.log" -logs ""
+        CriarLogs -caminhoLog "$diretorioDll\Logs\Log_INS.log" -logs $textAreaLogs.Text
+
+        # Adiciona o caminho diretamente ao PATH se nao estiver presente
+        if (-not ([System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::User) -like "*$caminhoPasta\$valor_destino*")) {
+            $pathAtual = [System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::User)
+            $pathAtual += ";$caminhoPasta\$valor_destino"
+            [System.Environment]::SetEnvironmentVariable("PATH", $pathAtual, [System.EnvironmentVariableTarget]::User)
+        }
+        else {
+            $logMessage = "O caminho ja esta no PATH."
+            $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessage))
+        }
+
+        $buttonFechar.Visible = $true
+        $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", "Sucesso Finalizado Configuracao"))
+    }
+    else {
+        # Se o arquivo ZIP de origem nao existir, exibir uma mensagem de erro
+        [System.Windows.Forms.MessageBox]::Show("O arquivo ZIP de origem nao foi encontrado.", "Erro", "OK", "Error")
+    }
+    
+}
+
+
 
 $buttonStartConfiguration.Add_Click({
         $unidade = $env:SystemDrive
-        $pasta = "VersionPHP"  
+        $pasta = "VersionPHP"
+        
         $caminhoPasta = Join-Path -Path $unidade -ChildPath $pasta
 
+        # Verificar se a pasta de destino ja existe
         if (-not (Test-Path $caminhoPasta)) {
-            # Se a pasta não existir, crie-a
+            # Se a pasta nao existir, crie-a
             New-Item -ItemType Directory -Path $caminhoPasta -Force
             $logMessage = "Pasta '$pasta' criada em $unidade."
+
+            $valor_destino = "php5.4.0" 
+            $caminhoOrigemZip = "$diretorioPai\Packages\Import\$valor_destino.zip"  # Defina o caminho do arquivo ZIP de origem
+            $caminhoDestino = $caminhoPasta  # Cria o caminho da pasta de destino
+
+            criarPastaExtrairZip -valor_destino $valor_destino -caminhoOrigemZip $caminhoOrigemZip -caminhoDestino $caminhoDestino
+
         }
         else {
-            # Se a pasta Ja existir, peça confirmacao para reinstalá-la
-            $confirmacao = [System.Windows.Forms.MessageBox]::Show("A pasta '$pasta' Ja existe. Deseja reinstala-la?", "Confirmacao", "YesNo", "Question")
+            # Se a pasta ja existir, peca confirmacao para reinstala-la
+            $confirmacao = [System.Windows.Forms.MessageBox]::Show("A pasta '$pasta' ja existe. Deseja reinstala-la?", "Confirmacao", "YesNo", "Question")
 
             if ($confirmacao -eq "Yes") {
-                # Se o usuário confirmar, remova a pasta e crie uma nova
+                # Se o usuario confirmar, remova a pasta e crie uma nova
                 Remove-Item -Path $caminhoPasta -Recurse -Force
                 New-Item -ItemType Directory -Path $caminhoPasta -Force
                 $logMessage = "Pasta '$pasta' reinstalada em $unidade."
-
+                $reinstalar = $true
             }
             else {
-                # Se o usuário optar por não reinstalar, apenas informe que a pasta Ja existe
-                $logMessage = "A pasta '$pasta' Ja existe em $unidade."
+                # Se o usuario optar por nao reinstalar, apenas informe que a pasta ja existe
+                $logMessage = "A pasta '$pasta' ja existe em $unidade."
+                $reinstalar = $false
             }
         }
-         
 
         # Adiciona o log ao textarea
         $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessage))
-        $valor_destino = "php5.4.0" 
-        # Copia todos os arquivos e subdiretórios da pasta de origem para a pasta de destino
-        $caminhoOrigem = "./Packages/$valor_destino"  # Defina o caminho da pasta de origem
-        $caminhoDestino = Join-Path -Path $caminhoPasta -ChildPath "$valor_destino"  # Cria o caminho da pasta de destino
 
-        # Verifica se a pasta de origem existe
-        if (Test-Path $caminhoOrigem -PathType Container) {
-            # Copia todos os arquivos e subdiretórios da pasta de origem para a pasta de destino
-            Copy-Item -Path $caminhoOrigem -Destination $caminhoDestino -Recurse -Force
-        
-            # Obtém a lista de arquivos da pasta de origem
-            $arquivos = Get-ChildItem -Path $caminhoOrigem -File
+        if ($reinstalar) {
+            $valor_destino = "php5.4.0" 
+            $caminhoOrigemZip = "$diretorioPai\Packages\Import\$valor_destino.zip"  # Defina o caminho do arquivo ZIP de origem
+            $caminhoDestino = $caminhoPasta  # Cria o caminho da pasta de destino
 
-            # Para cada arquivo na lista, copie-o para o destino
-            foreach ($arquivo in $arquivos) {
-                # Copia o arquivo para o destino
-                Copy-Item -Path $arquivo.FullName -Destination $caminhoDestino -Force
-
-                # Adiciona uma mensagem ao log
-                $logMessageArquivo = "Arquivo '$($arquivo.Name)' copiado para '$caminhoDestino'."
-                $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessageArquivo))
-                $labelPhpWindows.Text = "PHP - Instalando"
-                $labelPhpWindows.ForeColor = "Orange"
-
-            }
-
-            $labelPhpWindows.Text = "Reiniciar ..."
-            $labelPhpWindows.ForeColor = "Green"
-
-            $tabControl.TabPages.Remove($tab2)
-            $tabControl.TabPages.Remove($tab3)
-            CriarLogs -caminhoLog "$diretorioDll\Logs\Log_INS.log" -logs ""
-            CriarLogs -caminhoLog "$diretorioDll\Logs\Log_INS.log" -logs $textAreaLogs.Text
+            criarPastaExtrairZip -valor_destino $valor_destino -caminhoOrigemZip $caminhoOrigemZip -caminhoDestino $caminhoDestino
 
             
-            # Adiciona o caminho diretamente ao PATH se não estiver presente
-            if (-not ([System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::User) -like "*$caminhoPasta\$valor_destino*")) {
-                $pathAtual = [System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::User)
-                $pathAtual += ";$caminhoPasta\$valor_destino"
-                [System.Environment]::SetEnvironmentVariable("PATH", $pathAtual, [System.EnvironmentVariableTarget]::User)
-            }
-            else {
-                $logMessage = "O caminho já está no PATH."
-                $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessage))
-            }
+        }
 
-            $buttonFechar.Visible = $true
-            $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", "Sucesso Finalizado Configuracao..."))
-        }
-        else {
-            # Se a pasta de origem não existir, exibe uma mensagem de erro
-            [System.Windows.Forms.MessageBox]::Show("A pasta de origem não foi encontrada.", "Erro", "OK", "Error")
-        }
     })
+
 
 $textAreaLogs = New-Object System.Windows.Forms.TextBox
 $textAreaLogs.Multiline = $true
@@ -237,7 +260,40 @@ $textAreaLogs.Location = New-Object System.Drawing.Point(20, 100)
 $textAreaLogs.Size = New-Object System.Drawing.Size(350, 150)
 $tab1.Controls.Add($textAreaLogs)
 
-# Cria a aba para configuração do banco de dados
+function VerificaPasta {
+    param (
+        [string]$caminho,
+        [string]$nome
+    )
+
+    $caminhoPasta = Join-Path -Path $caminho -ChildPath $nome
+
+    if (-not (Test-Path $caminhoPasta)) {
+        return $false
+    }
+    else {
+        return $true
+    }
+    
+}
+
+$pastaVersion = VerificaPasta -caminho $env:SystemDrive -nome "VersionPHP"
+Write-Host $pastaVersion
+
+if ($pastaVersion -eq $true) {
+    $textAreaLogs.ForeColor = "Green"
+    $logMessage = " Configuracao feita com Sucesso ,`r`n Pacotes Encontrados `r`n / 200"
+    $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessage))
+
+}
+else {
+    $textAreaLogs.ForeColor = "Red"
+    $logMessage = " Inicie a Extracao de Pacotes Em `r`n / Pacotes Nao Encontrados `r`n / 404"
+    $textAreaLogs.AppendText([System.String]::Format("{0}`r`n", $logMessage))
+}
+
+
+# Cria a aba para configuracao do banco de dados
 $tab2 = New-Object System.Windows.Forms.TabPage
 $tab2.Text = "Config INI"
 $tabControl.Controls.Add($tab2)
@@ -280,13 +336,13 @@ if (Test-Path $caminhoArquivo_iniSelect -PathType Leaf) {
     }
 }
 else {
-    Write-Host "Arquivo não encontrado: $caminhoArquivo_iniSelect"
+    Write-Host "Arquivo nao encontrado: $caminhoArquivo_iniSelect"
     $temaAtual = "Retro"
 }
 
 
 
-# Define o evento de seleção do ComboBox
+# Define o evento de selecao do ComboBox
 $comboBox.Add_SelectedIndexChanged({
         $temaSelecionado = $comboBox.SelectedItem
         $caminhoArquivo = "config.ini"
@@ -315,7 +371,7 @@ Port  = $valorPort
 Pass  = $valorPass
 Dir   = $valorDir
 "@
-        # Cria o arquivo com o conteúdo padrão
+        # Cria o arquivo com o conteúdo padrao
         $conteudoArquivoFormatado
 
         # Salva o conteúdo atualizado no arquivo
@@ -330,7 +386,7 @@ Dir   = $valorDir
 $tab2.Controls.Add($comboBox)
 
 
-# Define a função para carregar ou criar um arquivo de configuração
+# Define a funcao para carregar ou criar um arquivo de configuracao
 function CarregarOuCriarArquivo {
     param(
         [string]$caminhoCompleto
@@ -341,15 +397,15 @@ function CarregarOuCriarArquivo {
         # Lê o conteúdo do arquivo
         $conteudoArquivo = Get-Content -Path $caminhoCompleto
 
-        # Separa a primeira linha (com o nome do painel) e as configurações restantes
+        # Separa a primeira linha (com o nome do painel) e as configuracões restantes
         $panel = $conteudoArquivo[0]
         $configuracoes = $conteudoArquivo[1..($conteudoArquivo.Length - 1)]
 
-        # Formata as configurações do arquivo para exibir as chaves e valores em linhas separadas
+        # Formata as configuracões do arquivo para exibir as chaves e valores em linhas separadas
         $conteudoArquivoFormatado = $panel + "`r`n" + ($configuracoes -join "`r`n")
     }
     else {
-        # Se o arquivo não existir, cria o conteúdo padrão
+        # Se o arquivo nao existir, cria o conteúdo padrao
         $conteudoArquivoFormatado = @"
 [Panel]
 Theme = Retro
@@ -359,7 +415,7 @@ Port  = 8000
 Pass  = admin
 Dir   = .
 "@
-        # Cria o arquivo com o conteúdo padrão
+        # Cria o arquivo com o conteúdo padrao
         $conteudoArquivoFormatado | Out-File -FilePath $caminhoCompleto
     }
 
@@ -367,7 +423,7 @@ Dir   = .
 }
 
 
-# Define a função para salvar as configurações no arquivo
+# Define a funcao para salvar as configuracões no arquivo
 function SalvarConfiguracoes {
     param(
         [string]$caminhoCompleto,
@@ -403,7 +459,7 @@ $caminhoArquivo = "config.ini"
 
 $textoArquivo = CarregarOuCriarArquivo -caminhoCompleto $caminhoArquivo
 
-# TextArea para as configurações
+# TextArea para as configuracões
 $textBoxConfig = New-Object System.Windows.Forms.TextBox
 $textBoxConfig.Multiline = $true
 $textBoxConfig.Text = $textoArquivo
@@ -417,26 +473,26 @@ $textBoxConfig.Font = $fonte
 $textBoxConfig.ForeColor = [System.Drawing.Color]::Black
 
 $tab2.Controls.Add($textBoxConfig)
-# Botão de Reset
+# Botao de Reset
 $buttonReset = New-Object System.Windows.Forms.Button
 $buttonReset.Location = New-Object System.Drawing.Point(20, 20)
 $buttonReset.Size = New-Object System.Drawing.Size(100, 30)
 $buttonReset.Text = "Reset"
 $tab2.Controls.Add($buttonReset)
 
-# Botão de Salvar
+# Botao de Salvar
 $buttonSave = New-Object System.Windows.Forms.Button
 $buttonSave.Location = New-Object System.Drawing.Point(140, 20)
 $buttonSave.Size = New-Object System.Drawing.Size(100, 30)
 $buttonSave.Text = "Save"
 $tab2.Controls.Add($buttonSave)
 
-# Ação do botão Reset
+# Acao do botao Reset
 $buttonReset.Add_Click({
         ReseteConfiguracoes -caminhoCompleto $caminhoArquivo
     })
 
-# Ação do botão Save
+# Acao do botao Save
 $buttonSave.Add_Click({
         SalvarConfiguracoes -caminhoCompleto $caminhoArquivo -novoConteudo $textBoxConfig.Text
     })
@@ -447,7 +503,7 @@ function LerVariavelDoArquivoIni {
         [string]$variavelDesejada
     )
 
-    # Define uma variável para armazenar o valor da variável desejada
+    # Define uma variavel para armazenar o valor da variavel desejada
     $valorVariavel = ""
 
     # Verifica se o arquivo existe
@@ -457,15 +513,15 @@ function LerVariavelDoArquivoIni {
 
         # Loop pelas linhas do arquivo
         foreach ($linha in $linhas) {
-            # Verifica se a linha contém a variável desejada
+            # Verifica se a linha contém a variavel desejada
             if ($linha -match "^\s*$variavelDesejada\s*=\s*(.*)\s*$") {
                 $valorVariavel = $matches[1]
-                break  # Se encontrarmos a variável desejada, podemos parar de percorrer o arquivo
+                break  # Se encontrarmos a variavel desejada, podemos parar de percorrer o arquivo
             }
         }
     }
     else {
-        Write-Host "O arquivo não foi encontrado no caminho especificado."
+        Write-Host "O arquivo nao foi encontrado no caminho especificado."
     }
 
     return $valorVariavel
@@ -515,7 +571,7 @@ $pid_input.Text = ""
 $pid_input.Size = New-Object System.Drawing.Size(100, 20)
 $tab3.Controls.Add($pid_input)
 
-# Botão
+# Botao
 $button_iniciar = New-Object System.Windows.Forms.Button
 $button_iniciar.Location = New-Object System.Drawing.Point(20, 80)
 $button_iniciar.Size = New-Object System.Drawing.Size(150, 23)
@@ -545,9 +601,15 @@ $labelPhpWindows.Location = New-Object System.Drawing.Point(250, 55)
 $labelPhpWindows.Font = New-Object System.Drawing.Font("Arial", 16, [System.Drawing.FontStyle]::Bold)  
 $tab1.Controls.Add($labelPhpWindows)
 
+# Criar a aba (TabPage) "Processos"
+$tab4 = New-Object System.Windows.Forms.TabPage
+$tab4.Text = "Processos"
+# $tabControl.Controls.Add($tab4)
+
 
 $tabControl.TabPages.Remove($tab2)
 $tabControl.TabPages.Remove($tab3)
+$tabControl.TabPages.Remove($tab4)
 $unidade = $env:SystemDrive
 $pasta = "VersionPHP"
 $caminhoCompleto = Join-Path -Path $unidade -ChildPath $pasta
@@ -557,13 +619,135 @@ if (Test-Path -Path $caminhoCompleto -PathType Container) {
     $labelPhpWindows.ForeColor = "Green"
     $tabControl.TabPages.Add($tab2)
     $tabControl.TabPages.Add($tab3)
+    $tabControl.TabPages.Add($tab4)
 }
 else {
     $labelPhpWindows.Text = "PHP - 404"
     $labelPhpWindows.ForeColor = "Red"
     $tabControl.TabPages.Remove($tab2)
     $tabControl.TabPages.Remove($tab3)
+    $tabControl.TabPages.Remove($tab4)
 }
+
+
+# Criar a TextBox para a saída do texto
+$preTextarea = New-Object System.Windows.Forms.TextBox
+$preTextarea.Multiline = $true
+$preTextarea.ScrollBars = "Vertical"
+$preTextarea.Width = 50
+$preTextarea.Height = 10
+$preTextarea.Anchor = "Top, Left, Right, Bottom"
+$tab4.Controls.Add($preTextarea)
+
+# Caminho do arquivo _pfx.json
+$caminhoArquivo = "$diretorioPai\_pfx.json"
+
+# Verificar se o arquivo existe
+if (Test-Path $caminhoArquivo -PathType Leaf) {
+    # Ler o conteúdo do arquivo como texto simples
+    $conteudoTexto = Get-Content -Path $caminhoArquivo -Raw
+    $preTextarea.Text = $conteudoTexto
+
+    # Ajustar o tamanho da fonte e a cor do texto
+    $preTextarea.Font = New-Object System.Drawing.Font("Arial", 12)
+    $preTextarea.ForeColor = "Green"
+}
+else {
+    Write-Host "O arquivo não foi encontrado: $caminhoArquivo"
+}
+
+$labelPhpSistem = New-Object System.Windows.Forms.Label
+$labelPhpSistem.Text = "En-VRT"
+$labelPhpSistem.AutoSize = $true
+$labelPhpSistem.Location = New-Object System.Drawing.Point(250, 20)
+$labelPhpSistem.Font = New-Object System.Drawing.Font("Arial", 16, [System.Drawing.FontStyle]::Bold)  
+$tab4.Controls.Add($labelPhpSistem)
+
+# Criar um TextBox de entrada
+$inputTextBoxProcess = New-Object System.Windows.Forms.TextBox
+$inputTextBox.Width = 135
+$inputTextBoxProcess.Location = New-Object System.Drawing.Point(250, 55)
+$inputTextBoxProcess.Enabled = $false
+$tab4.Controls.Add($inputTextBoxProcess)
+
+$unidade = $env:SystemDrive
+$pasta = "VersionPHP\php5.4.0"
+$caminhoPasta = Join-Path -Path $unidade -ChildPath $pasta
+
+# Verificar se a pasta existe
+if (Test-Path $caminhoPasta -PathType Container) {
+    # Procurar por arquivos com o nome "php_" dentro da pasta
+    $arquivosPhp = Get-ChildItem -Path $caminhoPasta -Filter "php_*" -File
+    
+    if ($arquivosPhp.Count -gt 0) {
+        # Exibir o nome dos arquivos encontrados
+        foreach ($arquivo in $arquivosPhp) {
+            $inputTextBoxProcess.Text = $arquivo.Name
+            Write-Host "Arquivo encontrado: $($arquivo.Name)"
+        }
+    }
+    else {
+        Write-Host "Nenhum arquivo com o nome 'php_' encontrado na pasta: $caminhoPasta"
+    }
+}
+else {
+    Write-Host "A pasta não foi encontrada: $caminhoPasta"
+}
+
+
+function ProcessarEAtualizarArquivo {
+    $novoConteudo = $preTextarea.Text
+    $caminhoArquivo = "$diretorioPai\_pfx.json"
+    if (Test-Path $caminhoArquivo -PathType Leaf) {
+        $novoConteudo | Set-Content -Path $caminhoArquivo -Force
+        [System.Windows.Forms.MessageBox]::Show("Conteúdo atualizado com sucesso em: $caminhoArquivo")
+        Write-Host "Conteúdo atualizado com sucesso em: $caminhoArquivo"
+    }
+    else {
+        [System.Windows.Forms.MessageBox]::Show("erro", "O arquivo não foi encontrado: $caminhoArquivo")
+        Write-Host "O arquivo não foi encontrado: $caminhoArquivo"
+    }
+}
+
+
+
+$conteudoPadrao = @"
+[
+    {
+        "_prf_":"php_5.exe"
+    }
+]
+"@
+
+function ProcessarResetaPrefixo {
+    $caminhoArquivo = "$diretorioPai\_pfx.json"
+    if (Test-Path $caminhoArquivo -PathType Leaf) {
+        $preTextarea.Text = $conteudoPadrao
+        $conteudoPadrao | Set-Content -Path $caminhoArquivo -Force
+        [System.Windows.Forms.MessageBox]::Show("Conteúdo restaurado com sucesso em: $caminhoArquivo")
+        Write-Host "Conteúdo restaurado com sucesso em: $caminhoArquivo"
+    }
+    else {
+        [System.Windows.Forms.MessageBox]::Show("O arquivo não foi encontrado: $caminhoArquivo", "Erro")
+        Write-Host "O arquivo não foi encontrado: $caminhoArquivo"
+    }
+}
+
+
+$buttonProcessarPrefixo = New-Object System.Windows.Forms.Button
+$buttonProcessarPrefixo.Text = "Processar Prefixo"
+$buttonProcessarPrefixo.Location = New-Object System.Drawing.Point(40, 230)
+$buttonProcessarPrefixo.Width = 150
+$buttonProcessarPrefixo.Add_Click({ ProcessarEAtualizarArquivo })
+$tab4.Controls.Add($buttonProcessarPrefixo)
+
+$buttonProcessarReset = New-Object System.Windows.Forms.Button
+$buttonProcessarReset.Text = "Reseta Prefixo"
+$buttonProcessarReset.Location = New-Object System.Drawing.Point(40, 260)
+$buttonProcessarReset.Width = 150
+$buttonProcessarReset.Add_Click({ ProcessarResetaPrefixo })
+$tab4.Controls.Add($buttonProcessarReset)
+
 
 
 # $button_iniciar.Add_Click({
@@ -584,7 +768,7 @@ else {
 #         # Define o comando a ser executado
 #         $comando = "cd ./Packages && cd phpLiteAdmin && php_5.exe -S $($_Host):$($_Port)"
 
-#         # Cria um processo para executar o comando e redireciona a saída padrão
+#         # Cria um processo para executar o comando e redireciona a saida padrao
 #         $processo = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $comando" -NoNewWindow -PassThru
 
 #         # Se o processo foi iniciado com sucesso
@@ -598,7 +782,7 @@ else {
 #             $textBox.AppendText("Iniciando Teste ..." + [Environment]::NewLine)
 #             # URL a ser aberta
 
-#             # Função para ler a saída do processo e exibir na caixa de texto
+#             # Funcao para ler a saida do processo e exibir na caixa de texto
 #             $leituraProcesso = {
 #                 param($processo, $textBox)
 
@@ -607,11 +791,11 @@ else {
 #                     if ($linha -ne $null) {
 #                         $textBox.BeginInvoke([Action[string]] { param($line) $textBox.AppendText($line + [Environment]::NewLine) }, $linha) | Out-Null
 #                     }
-#                     Start-Sleep -Milliseconds 100  # Aguarda um curto período para evitar bloqueios
+#                     Start-Sleep -Milliseconds 100  # Aguarda um curto periodo para evitar bloqueios
 #                 }
 #             }
 
-#             # Inicia a leitura da saída do processo em segundo plano
+#             # Inicia a leitura da saida do processo em segundo plano
 #             Start-Job -ScriptBlock $leituraProcesso -ArgumentList $processo, $textBox
 
 #             Start-Sleep -Seconds 3
@@ -629,7 +813,7 @@ function AbrirJanelaComNavegador {
         [string]$url
     )
 
-    # Crie uma nova instância do formulário
+    # Crie uma nova instância do formulario
     $form = New-Object System.Windows.Forms.Form
     $form.Text = "Navegador angueraAdmin 0.1"
     $form.Size = New-Object System.Drawing.Size(800, 600)
@@ -638,29 +822,64 @@ function AbrirJanelaComNavegador {
     $webBrowser = New-Object System.Windows.Forms.WebBrowser
     $webBrowser.Dock = "Fill"
     $webBrowser.Location = New-Object System.Drawing.Point(0, 0)
-    $webBrowser.Visible = $true
+    # $webBrowser.Visible = $true
 
     # Navegue para a URL especificada
     $webBrowser.Navigate($url)
 
-    # Defina algumas configurações de segurança para permitir a execução de scripts
+    # Defina algumas configuracões de seguranca para permitir a execucao de scripts
     $webBrowser.ScriptErrorsSuppressed = $true # Suprime erros de script
     $webBrowser.WebBrowserShortcutsEnabled = $true # Habilita atalhos do navegador
-    $webBrowser.ObjectForScripting = $true # Permite a comunicação entre o navegador e o código PowerShell
+    $webBrowser.ObjectForScripting = $true # Permite a comunicacao entre o navegador e o código PowerShell
 
-    # Adicione o controle WebBrowser ao formulário
+    # Adicione o controle WebBrowser ao formulario
     $form.Controls.Add($webBrowser)
 
-    # Exiba o formulário
+    # Exiba o formulario
     $form.ShowDialog() | Out-Null
 }
+
+function LerJson {
+    param (
+        [string]$CaminhoArquivo,
+        [string]$NomeChave
+    )
+
+    if (Test-Path $CaminhoArquivo) {
+        $conteudoJson = Get-Content -Path $CaminhoArquivo -Raw | ConvertFrom-Json
+        if ($conteudoJson.$NomeChave) {
+            return $conteudoJson.$NomeChave
+        }
+        else {
+            Write-Host "A chave '$NomeChave' não foi encontrada no arquivo JSON."
+            return $null
+        }
+    }
+    else {
+        Write-Host "O arquivo $CaminhoArquivo não foi encontrado."
+        return $null
+    }
+}
+
+
+
 
 
 $button_iniciar.Add_Click({
 
-        Start-Sleep -Milliseconds 400
+    
+        $phpProcess = LerJson -CaminhoArquivo "$diretorioPai\_pfx.json" -NomeChave "_prf_"
 
-        $webBrowser.Visible = $true
+        if ($jsonData -ne $null) {
+            foreach ($objeto in $jsonData) {
+                Write-Host "Prefixo: $($objeto._prf_)"
+            }
+        }
+        else {
+            Write-Host "Não foi possível ler os dados do arquivo JSON."
+        }
+
+        Start-Sleep -Milliseconds 400
 
         $processoAnteriorPID = $pid_input.Text
         if ($processoAnteriorPID -ne "") {
@@ -675,18 +894,18 @@ $button_iniciar.Add_Click({
             }
         }
 
-        # Define o caminho para o diretório onde o PHP será iniciado
+        # Define o caminho para o diretório onde o PHP sera iniciado
         $caminhoPHP = "$diretorioDll\Packages\phpLiteAdmin"
 
         
         $textBox.AppendText("Caminho Encontrado => : $caminhoPHP " + [Environment]::NewLine)
         # Verifica se o diretório existe
         if (Test-Path $caminhoPHP -PathType Container) {
-            # Entra no diretório onde o PHP será iniciado
+            # Entra no diretório onde o PHP sera iniciado
             Set-Location $caminhoPHP
 
             # Inicia o PHP diretamente
-            $processo = Start-Process -FilePath "php_5.exe" -ArgumentList "-S $($_Host):$($_Port)"  -NoNewWindow -PassThru
+            $processo = Start-Process -FilePath "$phpProcess" -ArgumentList "-S $($_Host):$($_Port)"  -NoNewWindow -PassThru
             
             $textBox.AppendText("Processamento Criado => : $processo " + [Environment]::NewLine)
             $textBox.AppendText("Processamento Criado => : $($processo.MachineName) " + [Environment]::NewLine)
@@ -702,7 +921,7 @@ $button_iniciar.Add_Click({
                 $textBox.AppendText("Iniciando Teste ..." + [Environment]::NewLine)
                 # URL a ser aberta
 
-                # Função para ler a saída do processo e exibir na caixa de texto
+                # Funcao para ler a saida do processo e exibir na caixa de texto
                 $leituraProcesso = {
                     param($processo, $textBox)
 
@@ -711,7 +930,7 @@ $button_iniciar.Add_Click({
                         if ($linha -ne $null) {
                             $textBox.BeginInvoke([Action[string]] { param($line) $textBox.AppendText($line + [Environment]::NewLine) }, $linha) | Out-Null
                         }
-                        Start-Sleep -Milliseconds 100  # Aguarda um curto período para evitar bloqueios
+                        Start-Sleep -Milliseconds 100  # Aguarda um curto periodo para evitar bloqueios
                     }
                 }
 
@@ -730,7 +949,7 @@ $button_iniciar.Add_Click({
                 
                 CriarLogs -caminhoLog "$diretorioDll\Logs\Log_PHP.log" -logs $textBox.Text
                 
-                # Inicia a leitura da saída do processo em segundo plano
+                # Inicia a leitura da saida do processo em segundo plano
                 Start-Job -ScriptBlock $leituraProcesso -ArgumentList $processo, $textBox
 
                 Start-Sleep -Seconds 2
@@ -745,8 +964,8 @@ $button_iniciar.Add_Click({
             }
         }
         else {
-            # Se o diretório não existir, exibe uma mensagem de erro
-            $textBox.AppendText("O diretório '$caminhoPHP' não foi encontrado." + [Environment]::NewLine)
+            # Se o diretório nao existir, exibe uma mensagem de erro
+            $textBox.AppendText("O diretório '$caminhoPHP' nao foi encontrado." + [Environment]::NewLine)
         }
     })
 
@@ -773,7 +992,7 @@ $button_stop.Add_Click({
                     $form.Close()
                 }
                 else {
-                    # Se o processo não foi encontrado, exibe uma mensagem de erro
+                    # Se o processo nao foi encontrado, exibe uma mensagem de erro
                     $textBox.AppendText("Nenhum processo encontrado com o PID $processoPID." + [Environment]::NewLine)
                 }
             }

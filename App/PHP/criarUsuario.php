@@ -55,19 +55,20 @@
 <body>
     <div class="container">
         <h1>Cadastro de Usuário</h1>
-        <form action="cadastro_usuario.php" method="post">
+        <form id="form-cadastro" action="cadastro_usuario.php" method="post">
             <label for="usuario">Usuário:</label>
             <input type="text" id="usuario" name="usuario" required>
             <label for="senha">Senha:</label>
             <input type="password" id="senha" name="senha" required>
-            <button type="submit">Cadastrar</button>
+            <button type="submit" class="btn">Cadastrar</button>
         </form>
     </div>
 
-    <div class="container">
+    <div class="container" id="usuarios-container">
         <h1>Usuários Cadastrados</h1>
-        <ul>
+        <ul id="usuarios-list">
             <?php
+            echo $dir_pai = dirname(dirname(__DIR__));
             function listar_usuarios($caminho_arquivo)
             {
                 $usuarios = ler_usuarios($caminho_arquivo);
@@ -92,11 +93,39 @@
             }
 
             // Exibir os usuários cadastrados
-            $caminho_arquivo = "../../secret/users.json";
+            $caminho_arquivo = "$dir_pai\secret\users.json";
             listar_usuarios($caminho_arquivo);
             ?>
         </ul>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#form-cadastro').submit(function(event) {
+                event.preventDefault(); // Evita o envio padrão do formulário
+
+                // Envia o formulário via AJAX
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: $(this).attr('method'),
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        // Limpa os campos do formulário
+                        $('#usuario').val('');
+                        $('#senha').val('');
+
+                        // Adiciona o novo usuário à lista
+                        $('#usuarios-list').append('<li>' + response + '</li>');
+                        window.location.reload(false);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error); // Exibe erros no console
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

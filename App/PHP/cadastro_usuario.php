@@ -1,4 +1,6 @@
 <?php
+$dir_pai = dirname(dirname(__DIR__));
+
 function ler_usuarios($caminho_arquivo)
 {
     if (file_exists($caminho_arquivo)) {
@@ -35,6 +37,18 @@ function usuario_existe($usuario, $usuarios)
 
 function salvar_usuario($usuario, $senha, $caminho_arquivo)
 {
+    // Verificar se o diretório pai existe, se não, criar o diretório
+    $dir_pai = dirname($caminho_arquivo);
+    if (!file_exists($dir_pai)) {
+        mkdir($dir_pai, 0777, true); // Cria o diretório recursivamente
+    }
+
+    // Verificar se o arquivo existe, se não, cria um arquivo vazio
+    if (!file_exists($caminho_arquivo)) {
+        file_put_contents($caminho_arquivo, '[]');
+    }
+
+    // Ler os usuários do arquivo
     $usuarios = ler_usuarios($caminho_arquivo);
 
     if (usuario_existe($usuario, $usuarios)) {
@@ -56,14 +70,14 @@ function salvar_usuario($usuario, $senha, $caminho_arquivo)
     $usuarios[] = $novo_usuario;
     $json_usuarios = json_encode($usuarios, JSON_PRETTY_PRINT);
     file_put_contents($caminho_arquivo, $json_usuarios);
-    header("Location: criarUsuario.php");
-    exit; 
+    // header("Location: criarUsuario.php");
+    exit;
 }
 
-// Verificar se o formulário foi submetido
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $usuario = $_POST["usuario"];
     $senha = $_POST["senha"];
-    $caminho_arquivo = "../../secret/users.json";
+    $caminho_arquivo = "$dir_pai/secret/users.json";
     salvar_usuario($usuario, $senha, $caminho_arquivo);
 }

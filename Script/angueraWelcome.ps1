@@ -1,21 +1,12 @@
+$diretorioPai = $PWD.Path
+Write-Host $diretorioPai
 
-
-# Importa o namespace do YamlDotNet
-using namespace YamlDotNet.RepresentationModel
+if (-not (Test-Path $diretorioPai)) {
+    Write-Host "Erro Ditorio Pai nao Existe $($diretorioPai)"
+}
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-
-# $diretorioDll = $PWD.Path
-# Write-Host $diretorioDll
-
-# # [Reflection.Assembly]::LoadFile("$diretorioDll\Packages\.NET\System.Data.SQLite.dll")
-# # $databasePath = "./Packages/phpLiteAdmin/dados.sqlite"
-# # $conexao = New-Object System.Data.SQLite.SQLiteConnection
-# # $conexao.ConnectionString = "Data Source=$databasePath"
-# # $conexao.Open()
-# # $conexao.Close()
-
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "AngueraBook"
@@ -23,12 +14,20 @@ $form.Size = New-Object System.Drawing.Size(400, 500)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedSingle"
 
-$image = [System.Drawing.Image]::FromFile("./Assets/Logo.png")  
-$picturebox = New-Object Windows.Forms.PictureBox
-$picturebox.Image = $image
-$picturebox.Size = New-Object Drawing.Size(400, 300)
-$picturebox.SizeMode = "Zoom"
-$picturebox.Location = New-Object Drawing.Point(0, 0)
+$imagePath = Join-Path $diretorioPai "Assets\Logo.png"
+if (Test-Path $imagePath) {
+    $image = [System.Drawing.Image]::FromFile($imagePath)  
+    $picturebox = New-Object System.Windows.Forms.PictureBox
+    $picturebox.Image = $image
+    $picturebox.Size = New-Object Drawing.Size(400, 300)
+    $picturebox.SizeMode = "Zoom"
+    $picturebox.Location = New-Object Drawing.Point(0, 0)
+    $form.Controls.Add($picturebox)
+}
+else {
+    Write-Host "Imagem não encontrada: $imagePath"
+}
+
 
 $label = New-Object System.Windows.Forms.Label
 $label.Location = New-Object System.Drawing.Point(0, 270) 
@@ -36,7 +35,6 @@ $label.Size = New-Object System.Drawing.Size(400, 50)
 $label.TextAlign = "MiddleCenter"
 $label.Text = "Instalador AngueraBook!"
 $label.Font = New-Object System.Drawing.Font("Arial", 16, [System.Drawing.FontStyle]::Bold)  
-
 
 $labelCriador = New-Object System.Windows.Forms.Label
 $labelCriador.Location = New-Object System.Drawing.Point(0, 400) 
@@ -52,8 +50,7 @@ $comboBox.Font = New-Object System.Drawing.Font("Arial", 16, [System.Drawing.Fon
 
 $comboBox.Items.Add("Instalar")
 $comboBox.Items.Add("Remover")
-$comboBox.Items.Add("Ferramentas")
-
+$comboBox.Items.Add("Instalar Banco")
 $comboBox.Text = "Instalar"
 
 Add-Type @"
@@ -70,13 +67,10 @@ Add-Type @"
 "@
 
 
-$hWnd = [Win32]::GetForegroundWindow()
-$pids = 0
-[Win32]::GetWindowThreadProcessId($hWnd, [ref]$pids) | Out-Null
 
-$pidFilePath = "./Keys/Pid_PS1.txt"
+$pidFilePath = "$diretorioPai\Keys\Pid_PS1.txt"
 if (-not (Test-Path $pidFilePath)) {
-    New-Item -ItemType Directory -Force -Path "./Keys"
+    New-Item -ItemType Directory -Force -Path "$diretorioPai\Keys"
     New-Item -ItemType File -Force -Path $pidFilePath
 }
 
@@ -88,13 +82,16 @@ function abriJanela {
     )
 
     if ($option -eq "Instalar") {
-        Start-Process powershell.exe -NoNewWindow "./Script/Config/anguerainstall.ps1"
+        Start-Process powershell.exe -NoNewWindow -ArgumentList "-ExecutionPolicy Bypass", "-File", ".\Script\Config\anguerainstall.ps1"
     }
     elseif ($option -eq "Remover") {
-        Start-Process powershell.exe -NoNewWindow "./Script/Config/angueraremove.ps1"
+        Start-Process powershell.exe -NoNewWindow -ArgumentList "-ExecutionPolicy Bypass", "-File", ".\Script\Config\angueraremove.ps1"
     }
-    elseif ($option -eq "Ferramentas") {
-        Start-Process powershell.exe -NoNewWindow "./Script/Config/angueratools.ps1"
+    elseif ($option -eq "Instalar Banco") {
+        Start-Process powershell.exe -NoNewWindow -ArgumentList "-ExecutionPolicy Bypass", "-File", ".\Script\Config\anguerainstallDB.ps1"
+    }
+    else {
+        [System.Windows.Forms.MessageBox]::Show("Item Selecionado Nao Esta na Lista de Argumentacao", "Erro",[System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     }
     
 }
@@ -106,8 +103,16 @@ $button.Text = "Execultar"
 $button.Add_Click({
         
         # [System.Windows.Forms.MessageBox]::Show("Selecionado: $($comboBox.SelectedItem)")
-        Write-Host "Host -> Action [$($comboBox.SelectedItem)]"
-        abriJanela -option $comboBox.SelectedItem
+        # Write-Host "Host -> Action [$($comboBox.SelectedItem)]"
+        # abriJanela -option $comboBox.SelectedItem
+        # Write-Host $comboBox.SelectedItem
+        if(-not $comboBox.SelectedItem){
+            [System.Windows.Forms.MessageBox]::Show("Erro Argumentacao em Branco!", "Erro", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        }else{
+            # [System.Windows.Forms.MessageBox]::Show("Selecionado: $($comboBox.SelectedItem)")
+            # Write-Host "Host -> Action [$($comboBox.SelectedItem)]"
+            abriJanela -option $comboBox.SelectedItem
+        }
     })
 $button.Font = New-Object System.Drawing.Font("Arial", 16, [System.Drawing.FontStyle]::Bold) 
 

@@ -1,3 +1,5 @@
+$diretorioPai = $PWD.Path
+Write-Host $diretorioPai
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -22,28 +24,18 @@ function RemoverAll {
         [string]$caminho
     )
 
-    $pid_Painel = CarregarLogs -caminhoLog "./Keys/Pid_PS1.txt"
+    $pid_Painel = CarregarLogs -caminhoLog "$diretorioPai\Keys\Pid_PS1.txt"
     # Write-Host $pid_Painel
 
      $processoPID = $pid_Painel
         if ($processoPID -ne "") {
             try {
-                # Obtém o processo com o PID especificado
                 $processoParaEncerrar = Get-Process -Id $processoPID -ErrorAction Stop
-
-                # Verifica se o processo foi encontrado
                 if ($processoParaEncerrar) {
-                    # Encerra o processo
                     $processoParaEncerrar.Kill()
                     $textBox.AppendText("Processo com PID $processoPID encerrado com sucesso." + [Environment]::NewLine)
-
-                    # # Fecha a janela após encerrar o processo
-                    # $textBox.AppendText("Fechando Janela..." + [Environment]::NewLine)
-                    # Start-Sleep -Milliseconds 2000
-                    # # $form.Close()
                 }
                 else {
-                    # Se o processo não foi encontrado, exibe uma mensagem de erro
                     $textBox.AppendText("Nenhum processo encontrado com o PID $processoPID." + [Environment]::NewLine)
                 }
             }
@@ -55,10 +47,9 @@ function RemoverAll {
             $textBox.AppendText("Nenhum PID fornecido para encerrar o processo." + [Environment]::NewLine)
         }
 
-
     try {
 
-        # Obter todos os arquivos e diretorios dentro do diretorio e seus subdiretorios até três níveis de profundidade
+        
         $itens = Get-ChildItem -Path $caminho -Recurse -Depth 3
 
         $msg = "Deseja realmente remover todos os arquivos e diretorios encontrados?"

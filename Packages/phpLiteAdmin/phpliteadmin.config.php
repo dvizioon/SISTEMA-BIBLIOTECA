@@ -8,8 +8,8 @@
 // 2. Change parameters directly in main phpliteadmin.php file
 //
 // Please see https://bitbucket.org/phpliteadmin/public/wiki/Configuration for more details
-
-$painel_ini = parse_ini_file('./config.ini', true);
+$dir_pai = dirname(dirname(__DIR__));
+$painel_ini = parse_ini_file($dir_pai . "\config.ini", true);
 // var_dump($painel_ini);
 // echo $painel_ini["Panel"]["Pass"] . "<br>";
 
@@ -39,7 +39,7 @@ $databases = array(
 /* ---- Interface settings ---- */
 
 // Theme! If you want to change theme, save the CSS file in same folder of phpliteadmin or in folder "themes"
-$theme = './themes/'.$painel_ini["Panel"]["Theme"].'/phpliteadmin.css';
+$theme = './themes/' . $painel_ini["Panel"]["Theme"] . '/phpliteadmin.css';
 
 // the default language! If you want to change it, save the language file in same folder of phpliteadmin or in folder "languages"
 // More about localizations (downloads, how to translate etc.): https://bitbucket.org/phpliteadmin/public/wiki/Localization

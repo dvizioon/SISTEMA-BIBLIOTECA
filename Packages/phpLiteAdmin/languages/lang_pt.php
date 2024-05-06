@@ -92,7 +92,7 @@ $lang = array(
 	"page_gen" => "Paginagerada em %s segundos.",
 	"powered" => "Produzido com",
 	"remember" => "Lembre-se de mim",
-	"no_db" => "Bem-vindo(a) ao %s. Parece que Você selecionou procurar por bancos de dados em um diretorio, para gerenciamento. Acontece que %s Não encontrou um banco de dados SQLite valido sequer. Você pode usar o formulário abaixo para criar seu primeiro banco de dados.",
+	"no_db" => "Bem-vindo(a) ao %s. Parece que Você selecionou procurar por bancos de dados em um diretorio, para gerenciamento. Acontece que %s Não encontrou um banco de dados SQLite valido sequer. Você pode criar seu Banco seguindo esses passos abaixo.",
 	"no_db2" => "O diretorio que Você especificou Não contem um banco de dados para gerenciar, além do diretorio Não poder ser gravado. Isso significa que Você Não pode criar qualquer banco de dados usando %s. Ou faça com que o diretorio seja gravavel ou envie manualmente os bancos de dados para o diretorio.",
 
 	"create" => "Criar",

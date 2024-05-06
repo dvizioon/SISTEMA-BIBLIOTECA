@@ -1,15 +1,7 @@
-caminhos:
-  - \Packages\.NET\
-  - \Packages\phpLiteAdmin
-  - \Script\Config
-
-credenciais: 
-  - secret\users.json
-
-sql:
-  - \Packages\Table.sql
-
 url:
   - localhost:2314
   - http://localhost:2314
 
+caminhoDB:
+  - Packages/phpLiteAdmin/angueraBook.sqlite
+  - Packages/phpLiteAdmin
