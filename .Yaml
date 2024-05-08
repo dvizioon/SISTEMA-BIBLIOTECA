@@ -1,7 +1,0 @@
-url:
-  - localhost:2314
-  - http://localhost:2314
-
-caminhoDB:
-  - Packages/phpLiteAdmin/angueraBook.sqlite
-  - Packages/phpLiteAdmin
