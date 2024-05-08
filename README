@@ -1,0 +1,113 @@
+# AngueraBook - Sistema de Gerenciamento de Biblioteca (Versão 0.7 Atualizada 2024)
+
+AngueraBook é um sistema de gerenciamento de biblioteca em sua versão beta, desenvolvido para facilitar o controle e a organização de uma biblioteca. Abaixo estão as funcionalidades principais desta versão:
+
+## Funcionalidades:
+
+1. **Cadastrar Livros:**
+   - [x] Permite o cadastro de novos livros no sistema.
+   - [x] Informações incluem título, autor, ano de publicação e gênero.
+   - [x] Os livros cadastrados podem ser facilmente atualizados ou removidos.
+
+2. **Cadastrar Colaboradores:**
+   - [x] Permite o registro de colaboradores da biblioteca.
+   - [x] Detalhes dos colaboradores incluem nome, email e cargo.
+   - [x] Facilidade para adicionar novos colaboradores e gerenciar suas informações.
+
+3. **Cadastrar Alunos:**
+   - [x] Permite adicionar novos alunos ao sistema.
+   - [x] Informações do aluno incluem nome, matrícula e curso.
+   - [x] Os dados dos alunos podem ser facilmente atualizados conforme necessário.
+
+4. **Cadastrar Empréstimo:**
+   - [x] Permite o registro de empréstimos de livros para alunos.
+   - [x] Registro inclui detalhes como livro emprestado, aluno, data de empréstimo e data de devolução.
+   - [x] Controle eficaz dos empréstimos, permitindo o acompanhamento das datas de devolução.
+
+5. **Visualizar e Importar Base de Dados:**
+   - [x] Oferece a capacidade de visualizar a base de dados existente no sistema.
+   - [x] Permite a importação de uma base de dados externa para o sistema, facilitando a migração de informações.
+   - [x] Interface intuitiva para navegar e explorar os dados disponíveis no sistema.
+
+6. **Enviar Email:**
+   - [x] Facilidade para enviar emails diretamente do sistema para alunos, colaboradores ou outras partes interessadas.
+   - [x] Possibilidade de enviar lembretes de devolução de livros, notificações de eventos ou qualquer outra comunicação relevante.
+
+7. **Pesquisar Aluno:**
+   - [x] Permite pesquisar alunos cadastrados no sistema com base em diferentes critérios, como nome ou matrícula.
+   - [x] Resultados de pesquisa rápidos e precisos, facilitando a localização de informações específicas sobre os alunos.
+
+8. **Pesquisar Livro:**
+   - [x] Permite pesquisar livros cadastrados no sistema com base em diferentes critérios, como título ou autor.
+   - [x] Funcionalidade de pesquisa avançada para encontrar obras específicas na biblioteca de forma rápida e eficiente.
+
+9. **Temas de Navegação:**
+   - [x] Navegação simplificada por meio de menus intuitivos, facilitando o acesso às diferentes funcionalidades do sistema.
+   - [x] Layout responsivo otimizado para uma experiência de usuário consistente em dispositivos móveis e desktop.
+   - [x] Design atraente e intuitivo, garantindo uma experiência de usuário agradável e produtiva.
+
+
+# Sistema
+
+O sistema AngueraBook permite que bibliotecários e administradores gerenciem facilmente o acervo da biblioteca, empréstimos de livros, informações de alunos e colaboradores. Com uma interface intuitiva e recursos avançados, AngueraBook oferece uma solução completa para a gestão eficiente de bibliotecas.
+
+## Imagens do Sistema:
+
+![Tela de Login](url_da_imagem1)
+*Figura 1: Tela de Login do AngueraBook*
+
+![Página Principal](url_da_imagem2)
+*Figura 2: Página Principal do AngueraBook*
+
+![Cadastro de Livros](url_da_imagem3)
+*Figura 3: Cadastro de Livros no AngueraBook*
+
+![Pesquisa de Aluno](url_da_imagem4)
+*Figura 4: Pesquisa de Aluno no AngueraBook*
+
+
+# AngueraBook - Sistema de Gerenciamento de Biblioteca (Versão 0.7 Atualizada 2024)
+
+AngueraBook é um sistema de gerenciamento de biblioteca desenvolvido para facilitar o controle e a organização de bibliotecas. Abaixo estão os detalhes sobre a instalação do sistema e o sistema de administração AngueraDBLite.
+
+## Instalação:
+
+### Requisitos do Sistema:
+- Python 3.x
+- Servidor web (por exemplo, Apache, Nginx)
+- Banco de dados MySQL
+
+### Passos para Instalação:
+
+1. **Clonar o Repositório:**
+git clone https://github.com/seu_usuario/anguerabook.git
+
+
+2. **Configurar o Ambiente:**
+- Instale as dependências do Python:
+  ```
+  pip install -r requirements.txt
+  ```
+- Configure o servidor web para apontar para o diretório do AngueraBook.
+
+3. **Configurar o Banco de Dados:**
+- Importe o arquivo de script SQL fornecido para criar o banco de dados e as tabelas necessárias.
+
+4. **Configurar as Credenciais:**
+- Edite o arquivo de configuração `config.py` e insira as credenciais do banco de dados.
+
+5. **Iniciar o Serviço:**
+- Inicie o servidor web e acesse o AngueraBook através do navegador.
+
+## Sistema de Administração - AngueraDBLite:
+
+AngueraDBLite é um sistema de administração de banco de dados leve e intuitivo, desenvolvido para gerenciar o banco de dados do AngueraBook de forma eficiente.
+
+### Principais Recursos:
+
+- Interface amigável para gerenciar tabelas, índices, procedimentos armazenados e muito mais.
+- Funcionalidades avançadas de consulta e visualização de dados.
+- Suporte para múltiplos bancos de dados, incluindo MySQL, SQLite, PostgreSQL, etc.
+
+![AngueraDBLite](url_da_imagem_angueradblite)
+*Figura: Interface do AngueraDBLite*

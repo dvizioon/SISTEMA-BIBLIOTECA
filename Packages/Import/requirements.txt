@@ -1,0 +1,10 @@
+customtkinter
+pillow
+PyYAML
+pyinstaller
+psutil
+pandas
+requests
+xlrd
+openpyxl
+tqdm
