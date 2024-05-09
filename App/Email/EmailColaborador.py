@@ -6,7 +6,16 @@ sys.path.append(".")
 from App.Email.Modules.PadraoEmail import padraoEmail
 from App.Email.Modules.CustomEmail import customEmail
 from App.Email.Config.ConfigEmail import configuracao_email
+from App.Email.Modules.webBrowserView import vizualizarTemplate
 from App.Email.SuperYaml import LerYaml
+
+
+def configBrowser(aba_mensagem_padrao):
+    vizualizarTemplate(aba_mensagem_padrao,"Aluno","""
+Ultilizes as Variaveis na Template
+{{Nome}} {{Email}} {{data}} {{CPF}} {{Cargo}}  
+Para Mais Temas Personalizados Entre : https://codedmails.com/#themes                
+""")
 
 def mensagem_padrao(aba_mensagem_padrao):
     print("Mostrando mensagem padrão")
@@ -28,6 +37,8 @@ def configEmail(aba_mensagem_personalizada):
     email = LerYaml("App/Email/conf.Yaml", "Colaborador", index=1)  
     senha = LerYaml("App/Email/conf.Yaml", "Colaborador", index=2)  
     tipo_email = LerYaml("App/Email/conf.Yaml", "Colaborador", index=3)  
+    smtp =  LerYaml("App/Email/conf.Yaml", "Colaborador", index=4)  
+    port =  LerYaml("App/Email/conf.Yaml", "Colaborador", index=5)  
     # print(url2)
 
     for widget in aba_mensagem_personalizada.winfo_children():
@@ -39,7 +50,9 @@ def configEmail(aba_mensagem_personalizada):
         email,
         senha,
         tipo_email,
-        ssl ,
+        smtp,
+        port,
+        ssl,
         "App/Email/conf.Yaml",
         "Colaborador"           
     )
@@ -54,6 +67,9 @@ def on_tab_change(event, notebook):
         mensagem_custom(notebook.nametowidget(notebook.select()))
     elif current_tab == "Configuração Colaborador":
         configEmail(notebook.nametowidget(notebook.select()))
+    elif current_tab == "Vizualizar / Ajuda":
+        configBrowser(notebook.nametowidget(notebook.select()))
+    
 
 def configColaborador(root):
     notebook = ttk.Notebook(root)
@@ -66,6 +82,9 @@ def configColaborador(root):
 
     aba_config_aluno = ttk.Frame(notebook)
     notebook.add(aba_config_aluno, text='Configuração Colaborador')
+    
+    aba_vizualizar_browser = ttk.Frame(notebook)
+    notebook.add(aba_vizualizar_browser, text='Vizualizar / Ajuda')
 
     notebook.pack(padx=10, pady=10, expand=True, fill="both")
 

@@ -16,7 +16,7 @@ from App.Screens.ViewColaborador import screenViewColaborador
 from App.Screens.ViewEmprestimo import screenViewEmprestimo
 
 from App.Screens.FindAluno import FindAluno
-from App.Screens.FindAlunoColaborador import FindColaborador
+from App.Screens.FindColaborador import FindColaborador
 from App.Screens.FindLivro import FindLivro
 from App.Screens.FindEmprestimo import FindEmprestimo
 
@@ -33,12 +33,15 @@ from App.Tools.ScreenDB import configDB
 from App.Email.EmailAlunos import configAluno
 from App.Email.EmailColaborador import configColaborador
 
+from App.Email.View.renderEmailAluno import CardAluno
+from App.Email.View.renderEmailColaborador import CardColaborador
+
 
 from App.Commands.Proccess.initProcess import process
 
 root = ctk.CTk()
 root.title("Painel angueraBook")
-root.geometry("840x500")
+root.geometry("840x580")
 # root.iconbitmap("Assets\Logo.ico")
 
 # # root.iconpath = ImageTk.PhotoImage(file="./Assets/Logo.png")
@@ -49,10 +52,10 @@ def Painel():
     
     def criarNavLinks(frame, nome, position):
         # Criando botões de navegação
-        link = ctk.CTkButton(frame, corner_radius=0, height=40, border_spacing=10, text=nome, font=("Roboto", 20),
-                             fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                             anchor="w", command=lambda: selecionarScreen(nome))
-        link.grid(row=position, column=0, sticky="ew")
+        link = ctk.CTkButton(frame, corner_radius=5, height=40, border_spacing=10, text=nome, font=("Roboto", 20),
+                              text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                             anchor="center", command=lambda: selecionarScreen(nome))
+        link.grid(row=position, column=0, sticky="ew",pady=5,padx=5)
         
     # Configurando o layout da grade para 1 linha e 2 colunas
     root.grid_rowconfigure(0, weight=1)
@@ -141,6 +144,12 @@ def criar_tela_Aluno_frame():
             widget.destroy()
         importAlunos(frame_render)
         # print("importar Alunos...")
+        
+    def email_alunos():
+        for widget in frame_render.winfo_children():
+            widget.destroy()
+        CardAluno(frame_render)
+        # print("Emailr Alunos...")
     
 
     botao_voltar = ctk.CTkButton(frame_atual, text="Voltar",command=voltar)
@@ -150,6 +159,7 @@ def criar_tela_Aluno_frame():
         ("Adicionar Aluno  ", adicionar_aluno),
         ("Visualizar Alunos", visualizar_alunos),
         ("Pesquisar Aluno", pesquisar_alunos),
+        ("Email Alunos", email_alunos),
         ("Importa Alunos", importa_alunos)
         
     ]
@@ -247,6 +257,12 @@ def criar_tela_Colaborador_frame():
             widget.destroy()
         importColaboradores(frame_render)
         # print("importar Colaboradores...")
+    
+    def email_colaborador():
+        for widget in frame_render.winfo_children():
+            widget.destroy()
+        CardColaborador(frame_render)
+        # print("Email Colaboradores...")
 
     botao_voltar = ctk.CTkButton(frame_atual, text="Voltar",command=voltar)
     botao_voltar.pack()
@@ -255,6 +271,7 @@ def criar_tela_Colaborador_frame():
         ("Adicionar  Colaborador", adicionar_colaborador),
         ("Visualizar Colaborador", visualizar_colaborador),
         ("Pesquisar Colaborador", pesquisar_colaborador),
+        ("Email Colaborador", email_colaborador),
         ("Importa Colaborador", importa_colaboradores),
     ]
     initLinkScreen(frame_render, links)

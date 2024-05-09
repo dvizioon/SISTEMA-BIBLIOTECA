@@ -94,6 +94,50 @@ def commandScreen(janela):
             messagebox.showwarning("Aviso", "Selecione uma tabela e uma operação antes de gerar o script.")
 
     
+    def exibir_tabela(dados, cursor):
+        # Criar uma nova janela para exibir a tabela
+        janela_tabela = tk.Toplevel()
+        janela_tabela.title("Tabela Resultante")
+        
+        # Criar uma treeview para exibir os dados em forma de tabela
+        tree = ttk.Treeview(janela_tabela)
+
+        if not dados:  # Verificar se os dados estão vazios
+            tree['columns'] = ('Mensagem',)
+            tree.heading('#0', text='Mensagem')
+            tree.column('#0', width=200)
+            tree.insert('', 'end', values=('Nenhum dado disponível',))
+        else:
+            tree['columns'] = tuple(range(len(dados[0])))
+            
+            # Obter os nomes reais das colunas do cursor
+            colunas = cursor.description
+            
+            # Definir os nomes das colunas
+            for i, info_coluna in enumerate(colunas):
+                nome_coluna = info_coluna[0]
+                tree.heading(i, text=nome_coluna)
+            
+            # Adicionar os dados à treeview
+            for linha in dados:
+                tree.insert('', 'end', values=linha)
+        
+        # Adicionar barra de rolagem
+        scroll_y = ttk.Scrollbar(janela_tabela, orient="vertical", command=tree.yview)
+        scroll_y.pack(side="right", fill="y")
+        tree.configure(yscrollcommand=scroll_y.set)
+        
+        # Exibir a treeview
+        tree.pack(expand=True, fill="both")
+        
+        # Adicionar barra de rolagem
+        scroll_y = ttk.Scrollbar(janela_tabela, orient="vertical", command=tree.yview)
+        scroll_y.pack(side="right", fill="y")
+        tree.configure(yscrollcommand=scroll_y.set)
+        
+        # Exibir a treeview
+        tree.pack(expand=True, fill="both")
+
     def exe_script():
         operacao_selecionada = combo_operacoes.get()
         if operacao_selecionada == "insert":
@@ -119,11 +163,15 @@ def commandScreen(janela):
                 print(error)
                 messagebox.showerror("Erro", f"Erro ao executar o script: {error}")
         elif operacao_selecionada == "select":
-            for widget in frame_formulario.winfo_children():
-                widget.destroy()
-            frame_formulario.grid_forget()  
-        
-       
+            script_sql = texto_script.get("1.0", tk.END)
+            try:
+                conexao = sqlite3.connect(buscaDB)
+                cursor = conexao.cursor()
+                cursor.execute(script_sql)
+                dados = cursor.fetchall()
+                exibir_tabela(dados, cursor)  # Passa o cursor como argumento
+            except sqlite3.Error as error:
+                messagebox.showerror("Erro", f"Erro ao executar o script de seleção: {error}")
 
 
    

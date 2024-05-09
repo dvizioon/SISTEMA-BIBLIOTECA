@@ -18,38 +18,53 @@ def buscar_emprestimos():
     return emprestimos
 
 def pesquisar_emprestimo_por_isbn(isbn):
-    conn = sqlite3.connect(f"{buscaDB}")
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Emprestimo WHERE ISBN=?", (isbn,))
-    emprestimo = cursor.fetchone()
-    conn.close()
-    return emprestimo
-
+    try:
+        conn = sqlite3.connect(buscaDB)
+        cursor = conn.cursor()
+        cursor.execute("SELECT livroIsbn, colaboradorCpf, dataEmprestimo, dataDevolucao FROM Emprestimo WHERE livroIsbn=?", (isbn,))
+        emprestimos = cursor.fetchall()
+        conn.close()
+        return emprestimos
+    except sqlite3.Error as e:
+        print("Erro ao pesquisar empréstimo por ISBN:", e)
+        return None
+    
 def pesquisar_emprestimo_por_cpf(cpf):
-    conn = sqlite3.connect(f"{buscaDB}")
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Emprestimo WHERE CPF_Colaborador=?", (cpf,))
-    emprestimo = cursor.fetchone()
-    conn.close()
-    return emprestimo
+    try:
+        conn = sqlite3.connect(buscaDB)
+        cursor = conn.cursor()
+        cursor.execute("SELECT livroIsbn, colaboradorCpf, dataEmprestimo, dataDevolucao FROM Emprestimo WHERE colaboradorCpf=?", (cpf,))
+        emprestimos = cursor.fetchall()
+        conn.close()
+        return emprestimos
+    except sqlite3.Error as e:
+        print("Erro ao pesquisar empréstimo por CPF do colaborador:", e)
+        return None
 
-def exibir_emprestimos(frame, largura):
+
+
+def exibir_resultado_pesquisa(frame, largura, consulta, valor_consulta):
+    print(valor_consulta)
     for widget in frame.winfo_children():
         widget.destroy()
 
-    tabela = ttk.Treeview(frame, columns=("ID", "Data Empréstimo", "Data Devolução", "ISBN Livro", "CPF Colaborador"), show="headings")
+    tabela = ttk.Treeview(frame, columns=("ISBN", "CPF Colaborador", "Data Empréstimo", "Data Devolução"), show="headings")
     for coluna in tabela["columns"]:
-        tabela.column(coluna, width=largura // 5, anchor="center")
-    tabela.heading("ID", text="ID")
+        tabela.column(coluna, width=largura // 4, anchor="center")
+    tabela.heading("ISBN", text="ISBN")
+    tabela.heading("CPF Colaborador", text="CPF Colaborador")
     tabela.heading("Data Empréstimo", text="Data Empréstimo")
     tabela.heading("Data Devolução", text="Data Devolução")
-    tabela.heading("ISBN Livro", text="ISBN Livro")
-    tabela.heading("CPF Colaborador", text="CPF Colaborador")
 
-    emprestimos = buscar_emprestimos()
+    emprestimos_encontrados = None
+    if consulta == "ISBN":
+        emprestimos_encontrados = pesquisar_emprestimo_por_isbn(valor_consulta)
+    elif consulta == "CPF":
+        emprestimos_encontrados = pesquisar_emprestimo_por_cpf(valor_consulta)
 
-    for emprestimo in emprestimos:
-        tabela.insert("", "end", values=emprestimo)
+    if emprestimos_encontrados:
+        for emprestimo in emprestimos_encontrados:
+            tabela.insert("", "end", values=emprestimo)
 
     tabela.pack(fill="both", expand=True)
 
@@ -76,29 +91,7 @@ def FindEmprestimo(screen):
 
     return frame
 
-def exibir_resultado_pesquisa(frame, largura, consulta, valor_consulta):
-    for widget in frame.winfo_children():
-        widget.destroy()
 
-    tabela = ttk.Treeview(frame, columns=("ID", "Data Empréstimo", "Data Devolução", "ISBN Livro", "CPF Colaborador"), show="headings")
-    for coluna in tabela["columns"]:
-        tabela.column(coluna, width=largura // 5, anchor="center")
-    tabela.heading("ID", text="ID")
-    tabela.heading("Data Empréstimo", text="Data Empréstimo")
-    tabela.heading("Data Devolução", text="Data Devolução")
-    tabela.heading("ISBN Livro", text="ISBN Livro")
-    tabela.heading("CPF Colaborador", text="CPF Colaborador")
-
-    emprestimo_encontrado = None
-    if consulta == "ISBN":
-        emprestimo_encontrado = pesquisar_emprestimo_por_isbn(valor_consulta)
-    elif consulta == "CPF":
-        emprestimo_encontrado = pesquisar_emprestimo_por_cpf(valor_consulta)
-
-    if emprestimo_encontrado:
-        tabela.insert("", "end", values=emprestimo_encontrado)
-
-    tabela.pack(fill="both", expand=True)
 
 def imprimir_emprestimo(frame, consulta, valor_consulta):
     emprestimo = None

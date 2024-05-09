@@ -1,10 +1,14 @@
 Aluno:
-- true
-- daniel@gmail.com
-- hhkd mlxw ussx fdsd
-- Custom
+- tls
+- seuEmail
+- Sua Senha De App
+- Padrao
+- smtp.gmail.com
+- '587'
 Colaborador:
-- false
-- colaboradorAngueraBook@gmail.com
-- '12345678'
+- ssl
+- seuEmail
+- Sua Senha De App
 - padrao
+- smtp.gmail.com
+- '587'

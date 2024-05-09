@@ -1,9 +1,8 @@
-import sys
-import time
-import requests
-import zipfile
 import os
 import json
+import requests
+import zipfile
+import sys
 from tqdm import tqdm
 
 sys.path.append(".")
@@ -15,7 +14,8 @@ t = """
   / ____ \| | | | (_| | |_| |  __/ | | (_| | | |____| | |
  /_/    \_\_| |_|\__, |\__,_|\___|_|  \__,_|  \_____|_|_|
                   __/ |                                  
-                 |___/                                   
+                 |___/     
+ V.0.2                                        dvizioon.com                                              
 
 """
 
@@ -42,18 +42,27 @@ def baixar_e_extrair_arquivo(url, destino, destino_extracao):
         # Fecha a barra de progresso
         barra_de_progresso.close()
 
-        print("Arquivo baixado com sucesso!")
+        print(f"Arquivo baixado com sucesso de {url}")
 
         # Extrai o conteúdo do arquivo ZIP
         with zipfile.ZipFile(destino, 'r') as zip_ref:
-            zip_ref.extractall(destino_extracao)
-        print(f"Conteúdo do arquivo ZIP extraído para: {destino_extracao}")
+            for file_info in zip_ref.infolist():
+                # Verifica se o arquivo é um diretório
+                if file_info.is_dir():
+                    continue  # Ignora diretórios, já que eles são criados automaticamente
+
+                # Extrai apenas o nome do arquivo
+                filename = os.path.basename(file_info.filename)
+
+                # Extrai o arquivo
+                zip_ref.extract(file_info, destino_extracao)
+                print(f"Arquivo extraído: {filename}")
 
         # Remove o arquivo ZIP após a extração
         os.remove(destino)
         print(f"Arquivo {destino} removido após a extração.")
     else:
-        print(f"Falha ao baixar o arquivo: {response.reason}")
+        print(f"Falha ao baixar o arquivo de {url}: {response.reason}")
 
 # Ler o conteúdo do arquivo JSON
 with open('./App/Http/Path.json', 'r') as json_file:

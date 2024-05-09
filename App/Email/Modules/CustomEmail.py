@@ -11,14 +11,15 @@ from App.Modules.LerContent import ler_arquivo
 
 # Função para salvar a mensagem
 def salvar_mensagem():
-    global texto_mensagem,arquivo_nome
+    global texto_mensagem, arquivo_nome
     
     mensagem = texto_mensagem.get("1.0", "end-1c")      
         
     with open(arquivo_nome, "w", encoding="utf-8") as arquivo:
-        arquivo.write(texto_mensagem)
+        arquivo.write(mensagem)  # Correção aqui: use 'mensagem' em vez de 'texto_mensagem'
 
     print("Mensagem salva com sucesso!")
+
 
 
 # Configuração da janela principal
