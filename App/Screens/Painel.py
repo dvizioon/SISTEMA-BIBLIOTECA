@@ -24,14 +24,21 @@ from App.Components.HelpSys import scriptSysHelp
 from App.Components.criarLinks import initLinkScreen
 from App.Components.Graficos import exibir_cards
 
+from App.Pandas.ImportAlunos import importAlunos
+from App.Pandas.ImportColaboradores import importColaboradores
+from App.Pandas.ImportLivros import importLivros
+
 from App.Tools.CommandSql import commandScreen
 from App.Tools.ScreenDB import configDB
+from App.Email.EmailAlunos import configAluno
+from App.Email.EmailColaborador import configColaborador
+
 
 from App.Commands.Proccess.initProcess import process
 
 root = ctk.CTk()
 root.title("Painel angueraBook")
-root.geometry("840x450")
+root.geometry("840x500")
 # root.iconbitmap("Assets\Logo.ico")
 
 # # root.iconpath = ImageTk.PhotoImage(file="./Assets/Logo.png")
@@ -70,9 +77,10 @@ def Painel():
     link_Livros = criarNavLinks(navigation_frame, "Livros", 3)
     link_Colaborador = criarNavLinks(navigation_frame, "Colaborador", 4)
     link_Emprestimo = criarNavLinks(navigation_frame, "Emprestimo", 5)
-    link_SGBD = criarNavLinks(navigation_frame, "Entrar SGBD", 6)
-    link_Help = criarNavLinks(navigation_frame, "SQL >>>", 7)
-    link_Help = criarNavLinks(navigation_frame, "Ajuda", 8)
+    link_Email = criarNavLinks(navigation_frame, "Email", 6)
+    link_SGBD = criarNavLinks(navigation_frame, "Entrar SGBD", 7)
+    link_Help = criarNavLinks(navigation_frame, "SQL >>>", 8)
+    link_Help = criarNavLinks(navigation_frame, "Ajuda", 9)
 
     # Chama a função para criar e exibir a tela "Home" quando o Painel é carregado
     criar_tela_home_frame()
@@ -127,6 +135,13 @@ def criar_tela_Aluno_frame():
             widget.destroy()
         FindAluno(frame_render)
         # print("Pesquisando Alunos...")
+    
+    def importa_alunos():
+        for widget in frame_render.winfo_children():
+            widget.destroy()
+        importAlunos(frame_render)
+        # print("importar Alunos...")
+    
 
     botao_voltar = ctk.CTkButton(frame_atual, text="Voltar",command=voltar)
     botao_voltar.pack()
@@ -134,7 +149,8 @@ def criar_tela_Aluno_frame():
     links = [
         ("Adicionar Aluno  ", adicionar_aluno),
         ("Visualizar Alunos", visualizar_alunos),
-        ("Pesquisar Aluno", pesquisar_alunos)
+        ("Pesquisar Aluno", pesquisar_alunos),
+        ("Importa Alunos", importa_alunos)
         
     ]
     initLinkScreen(frame_render, links)
@@ -166,13 +182,19 @@ def criar_tela_Livros_frame():
         for widget in frame_render.winfo_children():
             widget.destroy()
         screenViewLivro(frame_render)
-        # print("Vizualizando Alunos...")
+        # print("Vizualizando Livro...")
         
     def pesquisar_livros():
         for widget in frame_render.winfo_children():
             widget.destroy()
         FindLivro(frame_render)
-        # print("Pesquisando Alunos...")
+        # print("Pesquisando Livro...")
+    
+    def importa_livros():
+        for widget in frame_render.winfo_children():
+            widget.destroy()
+        importLivros(frame_render)
+        # print("importar Livro...")
 
     botao_voltar = ctk.CTkButton(frame_atual, text="Voltar",command=voltar)
     botao_voltar.pack()
@@ -180,7 +202,8 @@ def criar_tela_Livros_frame():
     links = [
         ("Adicionar Livro  ", adicionar_livro),
         ("Visualizar Livros", visualizar_livros),
-        ("Pesquisar Livros", pesquisar_livros)
+        ("Pesquisar Livros", pesquisar_livros),
+        ("Importa Livros", importa_livros)
     ]
     initLinkScreen(frame_render, links)
   
@@ -218,6 +241,12 @@ def criar_tela_Colaborador_frame():
             widget.destroy()
         FindColaborador(frame_render)
         # print("Pesquisando Colaborador...") 
+        
+    def importa_colaboradores():
+        for widget in frame_render.winfo_children():
+            widget.destroy()
+        importColaboradores(frame_render)
+        # print("importar Colaboradores...")
 
     botao_voltar = ctk.CTkButton(frame_atual, text="Voltar",command=voltar)
     botao_voltar.pack()
@@ -225,7 +254,8 @@ def criar_tela_Colaborador_frame():
     links = [
         ("Adicionar  Colaborador", adicionar_colaborador),
         ("Visualizar Colaborador", visualizar_colaborador),
-        ("Pesquisar Colaborador", pesquisar_colaborador)
+        ("Pesquisar Colaborador", pesquisar_colaborador),
+        ("Importa Colaborador", importa_colaboradores),
     ]
     initLinkScreen(frame_render, links)
 
@@ -373,6 +403,49 @@ def criar_tela_SQL_frame():
     ]
     initLinkScreen(frame_render, links)
 
+def criar_tela_config_Email_frame():
+    # Limpar o frame anterior antes de adicionar novos widgets
+    for widget in frame_home.winfo_children():
+        widget.destroy()
+
+     
+    frame_atual = ctk.CTkFrame(frame_home, height=30)  # Defina a altura desejada aqui
+    frame_atual.pack(padx=20, pady=20)
+    
+    frame_render = ctk.CTkFrame(frame_home)  # Defina a altura desejada aqui
+    frame_render.pack(fill="both", expand=True, padx=20, pady=20)
+    
+    def voltar():
+        for widget in frame_render.winfo_children():
+            widget.destroy()
+        initLinkScreen(frame_render, links)
+        
+    def email_aluno():
+        for widget in frame_render.winfo_children():
+            widget.destroy()
+        configAluno(frame_render)
+        # print("Adicionando Aluno...")
+
+    def email_colaborador():
+        for widget in frame_render.winfo_children():
+            widget.destroy()
+        configColaborador(frame_render)
+        # print("Vizualizando Alunos...")
+        
+
+    
+
+    botao_voltar = ctk.CTkButton(frame_atual, text="Voltar",command=voltar)
+    botao_voltar.pack()
+    
+    links = [
+        ("Email Aluno  ", email_aluno),
+        ("Email Colaborador", email_colaborador),
+        
+    ]
+    initLinkScreen(frame_render, links)
+
+
 def selecionarScreen(nome):
     if nome == "Home":
         criar_tela_home_frame()
@@ -388,8 +461,11 @@ def selecionarScreen(nome):
         criar_tela_SGBD_frame()
     elif nome == "SQL >>>":
         criar_tela_SQL_frame()
+    elif nome == "Email":
+        criar_tela_config_Email_frame()
     elif nome == "Ajuda":
         criar_tela_Ajuda_frame()
+    
 
 # Verifica se este script é o principal
 if __name__ == "__main__":

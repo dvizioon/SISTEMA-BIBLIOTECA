@@ -1,0 +1,14 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customizada</title>
+</head>
+<body>
+Tudo bem ?{{nome}} Estamos Entrando em Contato com Este.
+{{Email}} para informa que temos a V2 do seu livro Preferido.
+</body>
+</html>
+    

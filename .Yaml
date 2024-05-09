@@ -5,3 +5,7 @@ url:
 caminhoDB:
   - Packages/phpLiteAdmin/angueraBook.sqlite
   - Packages/phpLiteAdmin
+
+Template:
+  - src/mgsAluno.html
+  - src/msgColaborador.html

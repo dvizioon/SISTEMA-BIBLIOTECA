@@ -8,3 +8,5 @@ requests
 xlrd
 openpyxl
 tqdm
+pywebview
+bs4
