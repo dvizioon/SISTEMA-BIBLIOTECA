@@ -28,4 +28,4 @@ def encerrar_processo():
         print("Erro ao tentar encerrar o processo PowerShell:", str(e))
 
 # Chama a função process para iniciar o script PowerShell
-process("App\Commands\WebView.ps1", "App\Commands\Proccess\pid.txt")
+# process("App\Commands\WebView.ps1", "App\Commands\Proccess\pid.txt")
