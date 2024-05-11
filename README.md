@@ -1,6 +1,8 @@
 # AngueraBook <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien.png" alt="Alien" width="25" height="25" />
 
-<img src="./Assets/Logo.png"  alt="AngueraBook">
+<div style="display:flex;justify-content:center;">
+<img src="./Assets/Logo.png" width=200  alt="AngueraBook">
+</div>
 
 > Sistem Para Bibliotecas, Envio de Emails, Automação <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Books.png" alt="Books" width="25" height="25" />
 
