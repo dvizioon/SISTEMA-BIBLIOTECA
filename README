@@ -1,113 +1,232 @@
-# AngueraBook - Sistema de Gerenciamento de Biblioteca (Versão 0.7 Atualizada 2024)
-
-AngueraBook é um sistema de gerenciamento de biblioteca em sua versão beta, desenvolvido para facilitar o controle e a organização de uma biblioteca. Abaixo estão as funcionalidades principais desta versão:
-
-## Funcionalidades:
-
-1. **Cadastrar Livros:**
-   - [x] Permite o cadastro de novos livros no sistema.
-   - [x] Informações incluem título, autor, ano de publicação e gênero.
-   - [x] Os livros cadastrados podem ser facilmente atualizados ou removidos.
-
-2. **Cadastrar Colaboradores:**
-   - [x] Permite o registro de colaboradores da biblioteca.
-   - [x] Detalhes dos colaboradores incluem nome, email e cargo.
-   - [x] Facilidade para adicionar novos colaboradores e gerenciar suas informações.
-
-3. **Cadastrar Alunos:**
-   - [x] Permite adicionar novos alunos ao sistema.
-   - [x] Informações do aluno incluem nome, matrícula e curso.
-   - [x] Os dados dos alunos podem ser facilmente atualizados conforme necessário.
-
-4. **Cadastrar Empréstimo:**
-   - [x] Permite o registro de empréstimos de livros para alunos.
-   - [x] Registro inclui detalhes como livro emprestado, aluno, data de empréstimo e data de devolução.
-   - [x] Controle eficaz dos empréstimos, permitindo o acompanhamento das datas de devolução.
-
-5. **Visualizar e Importar Base de Dados:**
-   - [x] Oferece a capacidade de visualizar a base de dados existente no sistema.
-   - [x] Permite a importação de uma base de dados externa para o sistema, facilitando a migração de informações.
-   - [x] Interface intuitiva para navegar e explorar os dados disponíveis no sistema.
-
-6. **Enviar Email:**
-   - [x] Facilidade para enviar emails diretamente do sistema para alunos, colaboradores ou outras partes interessadas.
-   - [x] Possibilidade de enviar lembretes de devolução de livros, notificações de eventos ou qualquer outra comunicação relevante.
-
-7. **Pesquisar Aluno:**
-   - [x] Permite pesquisar alunos cadastrados no sistema com base em diferentes critérios, como nome ou matrícula.
-   - [x] Resultados de pesquisa rápidos e precisos, facilitando a localização de informações específicas sobre os alunos.
-
-8. **Pesquisar Livro:**
-   - [x] Permite pesquisar livros cadastrados no sistema com base em diferentes critérios, como título ou autor.
-   - [x] Funcionalidade de pesquisa avançada para encontrar obras específicas na biblioteca de forma rápida e eficiente.
-
-9. **Temas de Navegação:**
-   - [x] Navegação simplificada por meio de menus intuitivos, facilitando o acesso às diferentes funcionalidades do sistema.
-   - [x] Layout responsivo otimizado para uma experiência de usuário consistente em dispositivos móveis e desktop.
-   - [x] Design atraente e intuitivo, garantindo uma experiência de usuário agradável e produtiva.
+# AngueraBook <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien.png" alt="Alien" width="25" height="25" />
 
 
-# Sistema
-
-O sistema AngueraBook permite que bibliotecários e administradores gerenciem facilmente o acervo da biblioteca, empréstimos de livros, informações de alunos e colaboradores. Com uma interface intuitiva e recursos avançados, AngueraBook oferece uma solução completa para a gestão eficiente de bibliotecas.
-
-## Imagens do Sistema:
-
-![Tela de Login](url_da_imagem1)
-*Figura 1: Tela de Login do AngueraBook*
-
-![Página Principal](url_da_imagem2)
-*Figura 2: Página Principal do AngueraBook*
-
-![Cadastro de Livros](url_da_imagem3)
-*Figura 3: Cadastro de Livros no AngueraBook*
-
-![Pesquisa de Aluno](url_da_imagem4)
-*Figura 4: Pesquisa de Aluno no AngueraBook*
 
 
-# AngueraBook - Sistema de Gerenciamento de Biblioteca (Versão 0.7 Atualizada 2024)
+<img src="./Assets/Logo.png"  alt="AngueraBook">
 
-AngueraBook é um sistema de gerenciamento de biblioteca desenvolvido para facilitar o controle e a organização de bibliotecas. Abaixo estão os detalhes sobre a instalação do sistema e o sistema de administração AngueraDBLite.
+> Sistem Para Bibliotecas, Envio de Emails, Automação <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Books.png" alt="Books" width="25" height="25" />
 
-## Instalação:
+### Ajustes e melhorias
 
-### Requisitos do Sistema:
-- Python 3.x
-- Servidor web (por exemplo, Apache, Nginx)
-- Banco de dados MySQL
+O AngueraBook ainda está em desenvolvimento e as próximas atualizações serão voltadas nas seguintes tarefas:
 
-### Passos para Instalação:
+- [x] Modo de Email
+- [x] Exportação Base
+- [x] Importação Base
+- [x] Modo Codigo
+- [x] Processamento / PID
 
-1. **Clonar o Repositório:**
-git clone https://github.com/seu_usuario/anguerabook.git
+### Funcionalidades 📦
+
+>[!NOTE] 
+O AngueraBook Está com Novas Funcionalidades:
+
+- #### Alunos 🎓
+    
+    > Pesquisar,Adicionar,Importar,Email,Vizualizar
+
+- #### Livros 📚
+    
+    > Pesquisar,Adicionar,Importar,Vizualizar
 
 
-2. **Configurar o Ambiente:**
-- Instale as dependências do Python:
-  ```
-  pip install -r requirements.txt
-  ```
-- Configure o servidor web para apontar para o diretório do AngueraBook.
+- #### Colaborador 🧑‍🏫
+    
+    > Pesquisar,Adicionar,Importar,Vizualizar,Email
 
-3. **Configurar o Banco de Dados:**
-- Importe o arquivo de script SQL fornecido para criar o banco de dados e as tabelas necessárias.
+- #### Administrador SGBD ✅
+    
+    > sistema de Administração AngueraAdmin
 
-4. **Configurar as Credenciais:**
-- Edite o arquivo de configuração `config.py` e insira as credenciais do banco de dados.
 
-5. **Iniciar o Serviço:**
-- Inicie o servidor web e acesse o AngueraBook através do navegador.
+## 💻 Pré-requisitos
 
-## Sistema de Administração - AngueraDBLite:
+Antes de começar, verifique se você atendeu aos seguintes requisitos:
 
-AngueraDBLite é um sistema de administração de banco de dados leve e intuitivo, desenvolvido para gerenciar o banco de dados do AngueraBook de forma eficiente.
+- Você tem uma máquina `Windows`.
 
-### Principais Recursos:
+## 🚀 (Instalador) AngueraBook
 
-- Interface amigável para gerenciar tabelas, índices, procedimentos armazenados e muito mais.
-- Funcionalidades avançadas de consulta e visualização de dados.
-- Suporte para múltiplos bancos de dados, incluindo MySQL, SQLite, PostgreSQL, etc.
+Para instalar o AngueraBook, siga estas etapas:
 
-![AngueraDBLite](url_da_imagem_angueradblite)
-*Figura: Interface do AngueraDBLite*
+
+Windows:
+
+```
+> Click Install
+```
+- ⚠️ Importante, Baixe a Versão Empacotada para que Funcione no Modo Instalador 
+> Link : https://github.com/dvizioon/SISTEMA-BIBLIOTECA/releases
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="#" >
+      <img src="./imgAngueraBook/01.png" width=200 alt="imgAngueraBook"/>
+        <br>
+        <sub>
+          <b>Instalador</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="#" >
+      <img src="./imgAngueraBook/02.png" width="200px;"   alt="imgAngueraBook"/>
+        <br>
+        <sub>
+          <b>Packages de PHP</b>
+        </sub>
+      </a>
+    </td>
+  </tr>
+    <tr>
+    <td align="center">
+      <a href="#" >
+      <img src="./imgAngueraBook/03.png" width=200 alt="imgAngueraBook"/>
+        <br>
+        <sub>
+          <b>Inicio</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="#" >
+      <img src="./imgAngueraBook/04.png" width="200px;"   alt="imgAngueraBook"/>
+        <br>
+        <sub>
+          <b>Login</b>
+        </sub>
+      </a>
+    </td>
+  </tr>
+   <tr>
+    <td align="center">
+      <a href="#" >
+      <img src="./imgAngueraBook/05.png" width=200 alt="imgAngueraBook"/>
+        <br>
+        <sub>
+          <b>Criar Conta</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="#" >
+      <img src="./imgAngueraBook/06.png" width="200px;"   alt="imgAngueraBook"/>
+        <br>
+        <sub>
+          <b>Secret</b>
+        </sub>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="#" >
+      <img src="./imgAngueraBook/07.png" width=200 alt="imgAngueraBook"/>
+        <br>
+        <sub>
+          <b>Painel</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="#" >
+      <img src="./imgAngueraBook/08.png" width="200px;"   alt="imgAngueraBook"/>
+        <br>
+        <sub>
+          <b>SGBD</b>
+        </sub>
+      </a>
+    </td>
+  </tr>
+   <tr>
+    <td align="center">
+      <a href="#" >
+      <img src="./imgAngueraBook/09.png" width=200 alt="imgAngueraBook"/>
+        <br>
+        <sub>
+          <b>Painel SGBD</b>
+        </sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+
+
+
+```
+> Depois Execulta o AngueraBook.exe
+```
+
+## 🚀 (Desenvolvedor) AngueraBook
+
+Para instalar o AngueraBook no modo desenvolvedor , siga estas etapas:
+
+
+python >= 3.8.0:
+
+```
+> python -m venv Python
+```
+- Você precisa Ativar a Venv para criar um
+ambiente Controlado ✅
+
+```
+> pip -r Packages/Import/requirements.txt
+```
+
+```
+> python main.py
+```
+
+Node >= 18.2.0:
+```
+> Yarn Install
+```
+
+```
+> Yarn Start
+```
+
+
+
+## ☕ Usando PS1 AngueraBook
+
+Para usar AngueraBook, siga estas etapas:
+
+```
+CMD > powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "./Script/angueraWelcome.ps1"
+```
+## Compilar Pacote
+
+```
+CMD > pyinstaller main.py --onefile --noconsole --name angueraBook --add-data "App;App" --icon=Assets/lib.ico --collect-all=App   
+```
+
+## 🤝 Colaboradores
+
+Agradecemos às seguintes pessoas que contribuíram para este projeto:
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="#" >
+        <img src="https://avatars.githubusercontent.com/u/147283064?v=4" width="100px;" alt="Foto do Iuri Silva no GitHub"/><br>
+        <sub>
+          <b>Daniel Estevão</b>
+        </sub>
+      </a>
+    </td>
+  
+  </tr>
+</table>
+
+## 😄 Seja um dos contribuidores
+
+Quer fazer parte desse projeto? Clique [AQUI](CONTRIBUTING.md) e leia como contribuir.
+
+## 📝 Licença
+
+Esse projeto está sob licença. Veja o arquivo [LICENÇA](LICENSE.md) para mais detalhes.

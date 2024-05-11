@@ -7,12 +7,12 @@
 *.class
 
 *.log
-logs/
+.Logs/
 .cache/
 
-Python/
+.Python/
 
 .DS_Store
 .idea/
 .vscode/
-secret/
+.secret/

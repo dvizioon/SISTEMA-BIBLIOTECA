@@ -19,10 +19,6 @@ def verificarBanco(caminho, nomeDB):
     db_filename = nomeDB
     db_path = os.path.join(db_directory, db_filename)
 
-    # Verifica se o diretório existe
-    if not os.path.exists(db_directory):
-        return False
-
     # Verifica se o banco de dados existe
     if os.path.exists(db_path):
         return True
@@ -30,8 +26,8 @@ def verificarBanco(caminho, nomeDB):
         return False
 
 
-if not verificarBanco(caminhoDB, "angueraBook.sqlite"):
-    apresentation()
-else:
+if verificarBanco(caminhoDB, "angueraBook.sqlite"):
     login_loop()
+else:
+    apresentation()
 

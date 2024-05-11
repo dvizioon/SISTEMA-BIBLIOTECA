@@ -13,32 +13,35 @@ from App.Email.Chat.EnviarEmail import enviarEmail
 data_hora_atual = datetime.datetime.now()
 data_hora_formatada = data_hora_atual.strftime("%Y-%m-%d %H:%M:%S")
 
-# Carregar o caminho do banco de dados do arquivo YAML
-buscaDB = LerYaml(".Yaml", "caminhoDB", index=0)
+def conectar_banco_dados():
+    # Carregar o caminho do banco de dados do arquivo YAML
+    buscaDB = LerYaml(".Yaml", "caminhoDB", index=0)
 
-# Conectar ao banco de dados SQLite
-conexao = sqlite3.connect(f"{buscaDB}")
-cursor = conexao.cursor()
+    # Verificar se o arquivo do banco de dados existe
+    if not os.path.exists(buscaDB):
+        messagebox.showerror("Erro", "Banco de dados não encontrado.")
+        return None, None
 
-# Função para buscar todos os colaboradores do banco de dados
-def buscar_colaboradores():
+    # Conectar ao banco de dados SQLite
+    conexao = sqlite3.connect(buscaDB)
+    cursor = conexao.cursor()
+    return conexao, cursor
+
+def buscar_colaboradores(conexao, cursor):
     cursor.execute("SELECT * FROM Colaborador")
     colaboradores = cursor.fetchall()
     return colaboradores
 
-# Função para pesquisar colaboradores por CPF
-def pesquisar_colaborador_por_cpf(cpf):
+def pesquisar_colaborador_por_cpf(conexao, cursor, cpf):
     cursor.execute("SELECT * FROM Colaborador WHERE cpf=?", (cpf,))
     colaborador = cursor.fetchone()
     return colaborador
 
-# Função para pesquisar colaboradores por nome
-def pesquisar_colaborador_por_nome(nome):
+def pesquisar_colaborador_por_nome(conexao, cursor, nome):
     cursor.execute("SELECT * FROM Colaborador WHERE nome LIKE ?", (f'%{nome}%',))
     colaboradores = cursor.fetchall()
     return colaboradores
 
-# Função para enviar e-mail para o colaborador
 def enviar_email_colaborador(colaborador):
     print(colaborador)
     ssl = LerYaml("App/Email/conf.Yaml", "Colaborador", index=0)  
@@ -69,7 +72,6 @@ def enviar_email_colaborador(colaborador):
         {"Nome": colaborador[1], "Email": colaborador[2], "data": data_hora_formatada, "CPF": colaborador[0], "Cargo": colaborador[3]}
     )
 
-# Função para limpar a lista de colaboradores
 def limpar_lista():
     for widget in frame_colaboradores.winfo_children():
         widget.destroy()
@@ -102,19 +104,18 @@ def exibir_colaboradores(lista_colaboradores):
         button_email = ctk.CTkButton(colaborador_frame, text="Enviar E-mail", command=lambda c=colaborador: enviar_email_colaborador(c))
         button_email.pack(anchor="e", padx=10, pady=(0, 10))
 
-# Função para pesquisar e exibir colaboradores
 def pesquisar_colaboradores():
     limpar_lista()
     valor_pesquisa = entry_pesquisa.get()
     tipo_pesquisa = combo_tipo_pesquisa.get()
     if tipo_pesquisa == "CPF":
-        colaborador = pesquisar_colaborador_por_cpf(valor_pesquisa)
+        colaborador = pesquisar_colaborador_por_cpf(conexao, cursor, valor_pesquisa)
         if colaborador:
             exibir_colaboradores([colaborador])
         else:
             messagebox.showinfo("Colaborador não encontrado", "Nenhum colaborador encontrado com o CPF fornecido.")
     elif tipo_pesquisa == "Nome":
-        colaboradores = pesquisar_colaborador_por_nome(valor_pesquisa)
+        colaboradores = pesquisar_colaborador_por_nome(conexao, cursor, valor_pesquisa)
         if colaboradores:
             exibir_colaboradores(colaboradores)
         else:
@@ -126,9 +127,14 @@ def pesquisar_colaboradores():
 # root.geometry("600x400")
 
 def CardColaborador(root):
+    global entry_pesquisa, combo_tipo_pesquisa, frame_colaboradores, conexao, cursor
     
-    global entry_pesquisa, combo_tipo_pesquisa, frame_colaboradores
-    
+    # Conectar ao banco de dados
+    conexao, cursor = conectar_banco_dados()
+    if conexao is None:
+        root.destroy()
+        return
+
     # Frame para entrada de pesquisa
     frame_pesquisa = ttk.Frame(root)
     frame_pesquisa.pack(fill="x", padx=10, pady=10)
@@ -151,7 +157,7 @@ def CardColaborador(root):
     frame_colaboradores.pack(fill="both", expand=True, padx=10, pady=10)
 
     # Exibir todos os colaboradores inicialmente
-    exibir_colaboradores(buscar_colaboradores())
+    exibir_colaboradores(buscar_colaboradores(conexao, cursor))
 
 # CardColaborador(root)
 

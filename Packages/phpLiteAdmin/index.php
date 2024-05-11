@@ -51,7 +51,6 @@ $temas = array(
     "SoftieBlue",
     "Ugur3d"
 );
-
 ?>
 
 <!DOCTYPE html>
@@ -94,25 +93,25 @@ $temas = array(
             margin-bottom: 20px;
         }
 
+        .button-container {
+            text-align: center;
+        }
+
         .button {
             display: inline-block;
             padding: 10px 20px;
             background-color: #007bff;
             color: #fff;
             text-decoration: none;
-            width: 10rem;
-            text-align: center;
-            font-weight: bold;
-            border: 2px solid #007bff;
             border-radius: 5px;
             transition: background-color 0.3s;
-            cursor: pointer;
-            /* Adicionado para alterar o cursor ao passar sobre o link */
+            border: 2px dotted #777;
+            margin: 0 10px;
+            width: 200px;
         }
 
         .button:hover {
             background-color: #0056b3;
-            border-color: #0056b3;
         }
 
         /* Adicionado para ocultar o formulário inicialmente */
@@ -123,10 +122,11 @@ $temas = array(
 
         /* Estilo adicional para o formulário */
         #config-form select,
-        #config-form textarea {
+        #config-form textarea,
+        #config-form input[type="submit"] {
             display: block;
-            width: 100%;
-            margin-bottom: 10px;
+            width: calc(100% - 20px);
+            margin: 10px auto;
             background-color: #333;
             color: #fff;
             border: 2px solid #777;
@@ -136,32 +136,32 @@ $temas = array(
 
         #config-form input[type="submit"] {
             background-color: #007bff;
-            color: #fff;
-            border: 2px solid #007bff;
-            border-radius: 5px;
-            padding: 10px 20px;
             cursor: pointer;
-            font-weight: bold;
             transition: background-color 0.3s;
         }
 
         #config-form input[type="submit"]:hover {
             background-color: #0056b3;
-            border-color: #0056b3;
+
         }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <div style="display:flex; align-items: center;
+            justify-content: center;">
+
+            <img src="imgs/Logo.png" style="width: 30%;margin:0 auto;">
+        </div>
         <h1>Bem vindos AngueraAdmin</h1>
-        <ul>
+        <ul class="button-container">
             <li>
                 <a class="button" href="<?php echo "http://" . $config["Panel"]["Host"] . ":" . $config["Panel"]["Port"] . "/angueraAdmin.php" ?>">Entrar no SGBD</a>
             </li>
             <li>
                 <!-- Adicionado um id ao link para poder selecioná-lo com JavaScript -->
-                <a class="button" id="config-link">Configurar</a>
+                <a class="button" id="config-link">Configurar SGBD</a>
                 <!-- Formulário para configurar -->
                 <form id="config-form" method="POST">
                     <select name="theme" id="theme">
@@ -177,7 +177,7 @@ $temas = array(
                     <textarea name="port" id="port"><?php echo $config['Panel']['Port']; ?></textarea>
                     <textarea name="pass" id="pass"><?php echo $config['Panel']['Pass']; ?></textarea>
                     <textarea name="dir" id="dir"><?php echo $config['Panel']['Dir']; ?></textarea>
-                    <input type="submit" value="Salvar">
+                    <input class="button" type="submit" value="Salvar">
                 </form>
             </li>
         </ul>
