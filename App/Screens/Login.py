@@ -203,4 +203,4 @@ root.protocol("WM_DELETE_WINDOW", confirmar_encerramento)
 def login_loop():
     root.mainloop()
     return root
-login_loop()
+#login_loop()
