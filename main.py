@@ -9,6 +9,10 @@ from App.Sys.ProcessPid import pidProcess
 
 caminhoDB = LerYaml(".Yaml","caminhoDB",index=1)
 
+opw = 'dPID'
+arquivo_pid = "App\Sys\pid.txt"
+print(pidProcess(opw, None, arquivo_pid))
+
 op = 'cPID'
 pid = os.getpid()
 arquivo_pid = "App\Sys\pid.txt"
@@ -25,8 +29,8 @@ def verificarBanco(caminho, nomeDB):
     else:
         return False
 
-
 if verificarBanco(caminhoDB, "angueraBook.sqlite"):
+   
     login_loop()
 else:
     apresentation()

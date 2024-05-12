@@ -61,6 +61,7 @@ def buscarPid(pid, arquivo_pid):
 def limparPids(arquivo_pid):
     # Verificar se o arquivo existe
     if os.path.exists(arquivo_pid):
+        print("Processamento Limpo")
         # Limpar o arquivo, removendo todos os PIDs
         with open(arquivo_pid, 'w') as file:
             pass

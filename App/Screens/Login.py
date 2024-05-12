@@ -12,6 +12,7 @@ from App.Modules.LerYaml import LerYaml
 from App.Modules.LerIni import LerINI
 from App.Components.Processamento import prefix_process
 from App.Sys.ProcessPid import pidProcess
+
 import time
 import webbrowser
 import yaml
@@ -27,8 +28,8 @@ pids = pidProcess("lPID", None, arquivo_pid)
 
 root = ctk.CTk()
 root.title("Login")
-tamanho = 440
-root.geometry(f"350x{tamanho}+{500}+{50}")
+
+root.geometry(f"350x520+{500}+{50}")
 root.resizable(False, False)
 
 def encerrar_processos(pids):
@@ -36,23 +37,37 @@ def encerrar_processos(pids):
         try:
             print(f"Processo com PID {pid} encerrado.")
             psutil.Process(int(pid)).terminate()
+            root.destroy()
         except psutil.NoSuchProcess:
             print(f"Processo com PID {pid} não encontrado.")
             
 def confirmar_encerramento():
     encerrar_processos(pids)
-    # Limpar o arquivo de PIDs
-    pidProcess("dPID", None, arquivo_pid)
     # Encerrar a janela
     root.destroy()
+    root.quit()
 
 phpCp = prefix_process("_pfx.json","_prf_")
 def runPHP(_pre):
      url = LerYaml(".Yaml","url",index=_pre)
      return url
+ 
+
+def entrarLink():
+    if phpCp:
+            comando_php = [phpCp, "-S",runPHP(0) , "-t", r".\App\PHP"]
+            subprocess.Popen(comando_php, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, creationflags=subprocess.CREATE_NO_WINDOW)
+            time.sleep(2)  # Aguarda um pouco para garantir que o servidor PHP seja iniciado
+            webbrowser.open(runPHP(1))  # Abre a URL em um navegador da web
+            print("Servidor PHP iniciado.")
+    else:
+            print("URL não encontrada no arquivo YAML.")
+    encerrar_processos(pids)
+    time.sleep(2)
+    root.destroy()
 
 def criar_msg(tipo, msg, position):
-    entry_frame = ctk.CTkFrame(root, corner_radius=5, width=200, height=20)
+    entry_frame = ctk.CTkFrame(root, corner_radius=5, width=200, height=20,fg_color="transparent")
     entry_frame.grid(row=position, column=0, padx=10, pady=0, columnspan=2, sticky="ew")
     if tipo == "success":
         label_msg = ctk.CTkLabel(entry_frame, text=msg, font=("Roboto", 20),
@@ -74,6 +89,12 @@ def criar_msg(tipo, msg, position):
                                   width=20, corner_radius=5,
                                   fg_color=("#1a65eb", "white"),
                                   text_color=("white"), pady=(5))
+    elif tipo == "Link":
+        label_msg = ctk.CTkButton(entry_frame, text=msg, font=("Roboto", 20),
+                          width=20, corner_radius=5,
+                          fg_color=("#ffca22", "white"),
+                          text_color=("blue"),command=entrarLink)
+
 
     label_msg.grid(row=2, column=1, padx=10, pady=20, columnspan=2, sticky="ew")
     entry_frame.grid_columnconfigure(1, weight=1)
@@ -111,26 +132,26 @@ def login():
 
     # Verificar se os campos estão vazios
     if not username or not password:
-        criar_msg("error", "Campo Vazio!", 6)
+        criar_msg("error", "Campo Vazio!",  8)
         return
     else:
         def verificar_arquivo(caminho_arquivo):
             if os.path.exists(caminho_arquivo):
-                criar_msg("validation", "Validando Dados", 6)
+                criar_msg("validation", "Validando Dados",  8)
                 if autenticar(username, password):
-                    criar_msg("success", "Login bem-sucedido!", 6)
+                    criar_msg("success", "Login bem-sucedido!",  8)
                     resultado_login = True  # Se o login for bem-sucedido
                     root.destroy()
                     root.quit()
                     Painel()
                     return True
                 else:
-                    criar_msg("error", "Usuário Não Encontrado!", 6)
+                    criar_msg("error", "Usuário Não Encontrado!",  8)
                     resultado_login = False  # Se o login falhar
                     return False
             else:
                 # verificar_e_criar_users_json()
-                criar_msg("warning", "Criar Usuário", 6)
+                criar_msg("warning", "Criar Usuário", 8)
 
                 if phpCp:
                     comando_php = [phpCp, "-S", runPHP(0), "-t", r".\App\PHP"]
@@ -165,6 +186,8 @@ usuario = criar_input("Usuário", 1)
 # Input Senha
 senha = criar_input("Senha", 3, input_type="password")
 
+criar_msg("Link", "Recuperar Senha", 6)
+
 button_entrar = ctk.CTkButton(root, text="Entrar",
                              fg_color=("#ffb92c"),
                              height=50,text_color=("black"),
@@ -180,3 +203,4 @@ root.protocol("WM_DELETE_WINDOW", confirmar_encerramento)
 def login_loop():
     root.mainloop()
     return root
+login_loop()

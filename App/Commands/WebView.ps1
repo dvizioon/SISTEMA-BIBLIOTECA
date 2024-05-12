@@ -187,8 +187,12 @@ if (Test-Path -Path $caminhoPHP -PathType Container) {
     Write-Host "O diretório $caminhoPHP existe."
 
     Set-Location $caminhoPHP
+    
+    # Define a política de execução para Bypass
+    Set-ExecutionPolicy Bypass -Scope Process -Force
     $processo = Start-Process -FilePath "$phpProcess" -ArgumentList "-S $($_Host):$($_Port)"  -NoNewWindow -PassThru
-
+    Set-ExecutionPolicy Default -Scope Process -Force
+    
     if ($processo) {
         $textBoxCli.Text = $processo.Id
         $pid_prc = $PID

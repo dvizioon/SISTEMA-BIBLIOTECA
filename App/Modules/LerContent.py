@@ -6,7 +6,7 @@ def ler_arquivo(caminho_arquivo):
     # Verificar se o arquivo existe
     if os.path.exists(caminho_arquivo):
         # Se o arquivo existir, abra-o em modo de leitura
-        with open(caminho_arquivo, "r") as arquivo:
+        with open(caminho_arquivo, "r",encoding="utf-8") as arquivo:
             # Ler todo o conteúdo do arquivo
             conteudo = arquivo.read()
             

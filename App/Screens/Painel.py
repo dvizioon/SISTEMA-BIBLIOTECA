@@ -42,11 +42,6 @@ from App.Commands.Proccess.initProcess import process
 root = ctk.CTk()
 root.title("Painel angueraBook")
 root.geometry("840x580")
-# root.iconbitmap("Assets\Logo.ico")
-
-# # root.iconpath = ImageTk.PhotoImage(file="./Assets/Logo.png")
-# # root.wm_iconbitmap()
-# # root.iconphoto(False, root.iconpath)
 
 def Painel():
     

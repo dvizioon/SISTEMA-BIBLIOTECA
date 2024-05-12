@@ -51,11 +51,13 @@ function salvar_usuario($usuario, $senha, $caminho_arquivo)
     // Ler os usuários do arquivo
     $usuarios = ler_usuarios($caminho_arquivo);
 
-    if (usuario_existe($usuario, $usuarios)) {
-        echo "Usuário já existe!";
-        return;
+    // Verificar se já existe algum usuário cadastrado
+    if (!empty($usuarios)) {
+        echo "Já existe um usuário cadastrado.";
+        exit;
     }
 
+    // Se não houver nenhum usuário cadastrado, então salvar o novo usuário
     $id_usuario = gerar_id_aleatorio();
     $hash_senha = hash('sha256', $senha);
     $timestamp = date('Y-m-d H:i:s');

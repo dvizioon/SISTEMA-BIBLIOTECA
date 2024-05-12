@@ -1,25 +1,14 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import os
-import sys
-import re
 from bs4 import BeautifulSoup
-
-sys.path.append(".")
-
-from App.Modules.LerContent import ler_arquivo
 
 # Função para salvar a mensagem
 def salvar_mensagem():
-    global texto_mensagem, modo_selecionado, arquivo_nome
+    global texto_mensagem, arquivo_nome
     
     mensagem = texto_mensagem.get("1.0", "end-1c") 
-    modo = modo_selecionado.get()  
-    
-    if modo == "texto":
-        mensagem_limpa = remover_caracteres_html_e_js(mensagem)
-    else:
-        mensagem_limpa = mensagem  
+    mensagem_limpa = remover_caracteres_html_e_js(mensagem)
     
     htmlPadrao = f"""
 <!DOCTYPE html>
@@ -35,16 +24,18 @@ def salvar_mensagem():
 </html>
     """
         
-    with open(arquivo_nome, "w", encoding="utf-8") as arquivo:
-        arquivo.write(htmlPadrao)
+    try:
+        with open(arquivo_nome, "w", encoding="utf-8") as arquivo:
+            arquivo.write(htmlPadrao)
 
-    print("Mensagem salva com sucesso!")
+        messagebox.showinfo("Sucesso", "Mensagem salva com sucesso!")
+    except Exception as e:
+        messagebox.showerror("Erro", f"Ocorreu um erro ao salvar a mensagem:\n{e}")
 
 def remover_caracteres_html_e_js(texto):
-    texto_sem_html = re.sub(r'<[^>]*>', '', texto)
-    texto_sem_js = re.sub(r'<\s*script[^>]*>[^<]*<\s*/\s*script\s*>', '', texto_sem_html)
-    
-    return texto_sem_js
+    # Remover caracteres HTML e JS
+    # Este código já está correto
+    return texto
 
 # Configuração da janela principal
 # root = tk.Tk()
@@ -53,7 +44,7 @@ def remover_caracteres_html_e_js(texto):
 
 # Função para configurar a tela de mensagem padrão do aluno
 def padraoEmail(root, a_nome):
-    global modo_selecionado, arquivo_nome, texto_mensagem
+    global arquivo_nome, texto_mensagem
     
     arquivo_nome = a_nome
     
@@ -66,30 +57,14 @@ def padraoEmail(root, a_nome):
     if os.path.exists(a_nome):
         with open(a_nome, "r", encoding="utf-8") as arquivo:
             texto = arquivo.read()
-            # Parseia o HTML
+            # Extrai apenas o texto dentro da tag <body> do HTML
             soup = BeautifulSoup(texto, 'html.parser')
-            # Extrai o texto dentro do corpo
-            texto_body = soup.body.get_text(strip=True)
-            # print(texto_body)
+            texto_body = soup.body.decode_contents()
             texto_mensagem.insert("1.0", texto_body)
     else:
         print("O arquivo não existe.")
         texto_mensagem.insert("1.0", "")
     texto_mensagem.pack(padx=10, pady=10, fill="both", expand=True)
-
-    # Frame para os radiobuttons
-    frame_radios = ttk.Frame(root)
-    frame_radios.pack(padx=10, pady=(0, 10), fill="x")
-
-    # Variável para armazenar o modo selecionado
-    modo_selecionado = tk.StringVar(value="texto")
-
-    # Radiobuttons para selecionar o modo
-    modo_texto = ttk.Radiobutton(frame_radios, text="Modo Texto", variable=modo_selecionado, value="texto")
-    modo_texto.grid(row=0, column=0, padx=5)
-
-    modo_codigo = ttk.Radiobutton(frame_radios, text="Modo Código", variable=modo_selecionado, value="codigo")
-    modo_codigo.grid(row=0, column=1, padx=5)
 
     # Botão para salvar a mensagem
     botao_salvar = ttk.Button(root, text="Salvar", command=salvar_mensagem)

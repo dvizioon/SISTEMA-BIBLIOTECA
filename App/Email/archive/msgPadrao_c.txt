@@ -7,7 +7,7 @@
     <title>Customizada</title>
 </head>
 <body>
-Colaborado {{nome}} Email => {{Email}} para informa que temos Reunião as 16
+Colaborado {{nome}} Email {{Email}} para informa que temos Reunião as 16:00
 </body>
 </html>
     

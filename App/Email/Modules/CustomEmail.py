@@ -1,26 +1,20 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import os
-import sys
-import re
-from bs4 import BeautifulSoup
-
-sys.path.append(".")
-
-from App.Modules.LerContent import ler_arquivo
 
 # Função para salvar a mensagem
 def salvar_mensagem():
     global texto_mensagem, arquivo_nome
     
-    mensagem = texto_mensagem.get("1.0", "end-1c")      
+    mensagem = texto_mensagem.get("1.0", "end-1c")     
         
-    with open(arquivo_nome, "w", encoding="utf-8") as arquivo:
-        arquivo.write(mensagem)  # Correção aqui: use 'mensagem' em vez de 'texto_mensagem'
-
-    print("Mensagem salva com sucesso!")
-
-
+    try:
+        with open(arquivo_nome, "w", encoding="utf-8") as arquivo:
+            arquivo.write(mensagem)
+            
+        messagebox.showinfo("Sucesso", "Mensagem salva com sucesso!")
+    except Exception as e:
+        messagebox.showerror("Erro", f"Ocorreu um erro ao salvar a mensagem:\n{e}")
 
 # Configuração da janela principal
 # root = tk.Tk()
@@ -39,8 +33,6 @@ def customEmail(root, a_nome):
 
     # Textarea para inserir a mensagem
     texto_mensagem = tk.Text(frame_texto, height=10, width=50)
-    # Textarea para inserir a mensagem
-    texto_mensagem = tk.Text(frame_texto, height=10, width=50)
     if os.path.exists(a_nome):
         with open(a_nome, "r", encoding="utf-8") as arquivo:
             texto = arquivo.read()
@@ -48,7 +40,6 @@ def customEmail(root, a_nome):
     else:
         print("O arquivo não existe.")
         texto_mensagem.insert("1.0", "")
-    texto_mensagem.pack(padx=10, pady=10, fill="both", expand=True)
     texto_mensagem.pack(padx=10, pady=10, fill="both", expand=True)
 
     # Botão para salvar a mensagem
