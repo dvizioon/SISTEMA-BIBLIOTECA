@@ -207,8 +207,6 @@ CMD > pyinstaller main.py --onefile --noconsole --name angueraBook --add-data "A
 
 ## 🤝 Colaboradores
 
-Agradecemos às seguintes pessoas que contribuíram para este projeto:
-
 <table>
   <tr>
     <td align="center">
